@@ -146,6 +146,13 @@ export const AuthProvider = ({ children }) => {
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
         const result = await response.json();
         console.log(result);
+        if (result) {
+          dispatch({
+            type: "setUsuario", 
+            payload: { userDetails: result } // Guarda todo el JSON recibido
+          });
+        }
+        
       } catch (err) {
         console.error(
           "Error al obtener los detalles del usuario:",

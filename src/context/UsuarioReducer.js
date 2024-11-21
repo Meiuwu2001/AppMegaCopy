@@ -21,11 +21,10 @@ export const authReducer = (state, action) => {
         ...authInitialState,
       };
     case "setUsuario":
-      const { rol: newRol, iduser: newIduser } = action.payload;
+      const { userDetails } = action.payload;
       return {
         ...state,
-        rol: newRol, // Actualizar rol
-        iduser: newIduser, // Actualizar iduser
+        userDetails, // Actualizar iduser
       };
     default:
       return state;
