@@ -22,8 +22,6 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const context = useContext(AuthContext);
 
-
-
   const handleLogin = async () => {
     try {
       const response = await fetch(
@@ -40,14 +38,17 @@ const Login = ({ navigation }) => {
         // Almacenar el token en AsyncStorage
         await AsyncStorage.setItem("authToken", data.token);
         context.signIn(user, data.token);
-
+        console.log("Iniciando sesion", user, data.token);
         // Limpiar campos de usuario y contraseña
         setUser("");
         setPassword("");
 
         // Redirigir al usuario a la pantalla principal
-        
-        navigation.navigate("MainApp");
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "MainApp" }],
+        });
       } else {
         console.log("No token found.");
       }
@@ -55,7 +56,6 @@ const Login = ({ navigation }) => {
       console.error("Error al iniciar sesión:", err);
     }
   };
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -117,7 +117,6 @@ const Login = ({ navigation }) => {
               </TouchableOpacity>
 
               {/* Mostrar botón de huella si está disponible */}
-
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -195,7 +194,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-
 });
 
 export default Login;

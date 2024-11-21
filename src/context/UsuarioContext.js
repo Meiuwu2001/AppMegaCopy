@@ -104,22 +104,39 @@ export const AuthProvider = ({ children }) => {
 
   // El signIn también debe ser modificado para almacenar correctamente todos los valores
   const signIn = async (user, token) => {
-    await AsyncStorage.setItem("authToken", token);
-    await AsyncStorage.setItem("authUser", JSON.stringify(user));
-    await AsyncStorage.setItem("rol", user.rol);
-    await AsyncStorage.setItem("iduser", user.id.toString());
-
-    dispatch({
-      type: "signIn",
-      payload: {
-        user,
-        token,
-        rol: user.rol,
-        iduser: user.id.toString(),
-      },
-    });
-    loadToken();
+    try {
+      // Validamos el token primero
+      const tokenValidationResult = await validateToken(token);
+      if (tokenValidationResult) {
+        const { usuario } = tokenValidationResult;
+  
+        // Almacenar los valores solo si el token es válido
+        await AsyncStorage.setItem("authToken", token);
+        await AsyncStorage.setItem("authUser", JSON.stringify(usuario));
+        await AsyncStorage.setItem("rol", usuario.rol);
+        await AsyncStorage.setItem("iduser", usuario.id.toString());
+  
+        // Despachamos la acción para actualizar el estado
+        dispatch({
+          type: "signIn",
+          payload: {
+            user: usuario,
+            token,
+            rol: usuario.rol,
+            iduser: usuario.id.toString(),
+          },
+        });
+  
+        // Cargar detalles adicionales del usuario si es necesario
+        loadUserDetails(usuario.rol, usuario.id);
+      } else {
+        console.log("Token inválido");
+      }
+    } catch (error) {
+      console.error("Error al validar el token en signIn:", error);
+    }
   };
+  
 
   // Cargar detalles del usuario según su rol
   const loadUserDetails = async () => {
@@ -146,12 +163,12 @@ export const AuthProvider = ({ children }) => {
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
         const result = await response.json();
         console.log(result);
-        if (result) {
-          dispatch({
-            type: "setUsuario", 
-            payload: { userDetails: result } // Guarda todo el JSON recibido
-          });
-        }
+          if (result) {
+        dispatch({
+          type: "setUsuario", 
+          payload: { userDetails: result } // Guarda todo el JSON recibido
+        });
+      }
         
       } catch (err) {
         console.error(
