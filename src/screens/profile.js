@@ -18,10 +18,10 @@ export default function Profile() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
-    apellidoPa: "",
-    apellidoMa: "",
-    telefono: "",
-    correoElectronico: "",
+    ApellidoPa: "",
+    ApellidoMa: "",
+    Telefono: "",
+    CorreoElectronico: "",
   });
 
   useEffect(() => {
@@ -35,10 +35,10 @@ export default function Profile() {
       // Cargar los detalles del usuario al estado del formulario
       setFormData({
         nombre: userDetails.nombre || "",
-        apellidoPa: userDetails.apellidoPa || "",
-        apellidoMa: userDetails.apellidoMa || "",
+        ApellidoPa: userDetails.ApellidoPa || "",
+        ApellidoMa: userDetails.ApellidoMa || "",
         Telefono: userDetails.Telefono || "",
-        correoElectronico: userDetails.CorreoElectronico || "",
+        CorreoElectronico: userDetails.CorreoElectronico || "",
       });
     }
   }, [userDetails]);
@@ -54,26 +54,25 @@ export default function Profile() {
   // Enviar datos para actualizar
   const handleUpdate = async () => {
     try {
-      const response = await fetch(
-        `https://backend-integradora.vercel.app/api/${
-          rol === "cliente" ? "clientes" : "tecnicos"
-        }/${iduser}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Asegúrate de tener el token adecuado
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const endpointMap = {
+        cliente: `https://backend-integradora.vercel.app/api/clientes/${userDetails.idClientes}`,
+        tecnico: `https://backend-integradora.vercel.app/api/tecnicos/${userDetails.idTecnicos}`,
+      };
+      const response = await fetch(endpointMap[rol], {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (!response.ok) {
         throw new Error("Error al actualizar los datos.");
       }
-      loadUserDetails(rol, iduser);
       Alert.alert("Éxito", "Datos actualizados exitosamente.");
       closeModal(); // Cerrar el modal después de la actualización
+      loadUserDetails(rol, iduser);
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -85,17 +84,15 @@ export default function Profile() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Perfil de Usuario</Text>
           <Text style={styles.cardText}>
-            Nombre: {userDetails.nombre} {userDetails.apellidoPa}{" "}
-            {userDetails.apellidoMa}
+            Nombre: {userDetails.nombre} {userDetails.ApellidoPa}{" "}
+            {userDetails.ApellidoMa}
           </Text>
           <Text style={styles.cardText}>Usuario: {userDetails.user}</Text>
           <Text style={styles.cardText}>
             Email: {userDetails.CorreoElectronico}
           </Text>
           <Text style={styles.cardText}>Teléfono: {userDetails.Telefono}</Text>
-          <Text style={styles.cardText}>
-            ID Cliente: {userDetails.idClientes}
-          </Text>
+
           <TouchableOpacity
             style={styles.button}
             onPress={() => setIsModalVisible(true)}
@@ -125,27 +122,27 @@ export default function Profile() {
           <TextInput
             style={styles.input}
             placeholder="Apellido Paterno"
-            value={formData.apellidoPa}
-            onChangeText={(value) => handleInputChange("apellidoPa", value)}
+            value={formData.ApellidoPa}
+            onChangeText={(value) => handleInputChange("ApellidoPa", value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Apellido Materno"
-            value={formData.apellidoMa}
-            onChangeText={(value) => handleInputChange("apellidoMa", value)}
+            value={formData.ApellidoMa}
+            onChangeText={(value) => handleInputChange("ApellidoMa", value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Teléfono"
             value={formData.Telefono}
-            onChangeText={(value) => handleInputChange("telefono", value)}
+            onChangeText={(value) => handleInputChange("Telefono", value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Correo Electrónico"
-            value={formData.correoElectronico}
+            value={formData.CorreoElectronico}
             onChangeText={(value) =>
-              handleInputChange("correoElectronico", value)
+              handleInputChange("CorreoElectronico", value)
             }
           />
 

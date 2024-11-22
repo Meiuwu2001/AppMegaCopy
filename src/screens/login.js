@@ -38,7 +38,6 @@ const Login = ({ navigation }) => {
         // Almacenar el token en AsyncStorage
         await AsyncStorage.setItem("authToken", data.token);
         context.signIn(user, data.token);
-        console.log("Iniciando sesion", user, data.token);
         // Limpiar campos de usuario y contraseña
         setUser("");
         setPassword("");
@@ -50,7 +49,6 @@ const Login = ({ navigation }) => {
           routes: [{ name: "MainApp" }],
         });
       } else {
-        console.log("No token found.");
       }
     } catch (err) {
       console.error("Error al iniciar sesión:", err);

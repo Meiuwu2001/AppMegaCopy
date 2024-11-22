@@ -47,13 +47,13 @@ export const AuthProvider = ({ children }) => {
 
     if (storedToken && storedUser) {
       // Asegúrate de que ambos estén presentes
-      console.log("Validando el token almacenado...", storedToken);
+      
 
       try {
         const tokenValidationResult = await validateToken(storedToken);
 
         if (tokenValidationResult) {
-          console.log("Token válido.");
+         
           const { usuario } = tokenValidationResult;
 
           // Almacenar los datos del usuario en AsyncStorage para futuras referencias
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
           // Aquí puedes cargar detalles adicionales si es necesario
           loadUserDetails(usuario.rol, usuario.id);
         } else {
-          console.log("Token inválido, cerrando sesión...");
+         
           await AsyncStorage.removeItem("authToken");
           await AsyncStorage.removeItem("authUser");
           await AsyncStorage.removeItem("iduser");
@@ -95,7 +95,6 @@ export const AuthProvider = ({ children }) => {
         dispatch({ type: "signOut" });
       }
     } else {
-      console.log("No hay token almacenado, cerrando sesión...");
       dispatch({ type: "signOut" });
     }
 
@@ -130,7 +129,6 @@ export const AuthProvider = ({ children }) => {
         // Cargar detalles adicionales del usuario si es necesario
         loadUserDetails(usuario.rol, usuario.id);
       } else {
-        console.log("Token inválido");
       }
     } catch (error) {
       console.error("Error al validar el token en signIn:", error);
@@ -150,7 +148,6 @@ export const AuthProvider = ({ children }) => {
         };
 
         const endpoint = endpointMap[rol];
-        console.log("Endpoint para la solicitud:", endpoint);
 
         const response = await fetch(endpoint, {
           method: "GET",
@@ -162,7 +159,7 @@ export const AuthProvider = ({ children }) => {
 
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
         const result = await response.json();
-        console.log(result);
+        
           if (result) {
         dispatch({
           type: "setUsuario", 
@@ -177,17 +174,14 @@ export const AuthProvider = ({ children }) => {
         );
       }
     } else {
-      console.log("Faltan datos para realizar la solicitud.");
     }
   };
 
-  useEffect(() => {
-    console.log("Cargando token al iniciar...");
+  useEffect(() => { 
     loadToken();
   }, []);
 
   const signOut = async () => {
-    console.log("Cerrando sesión...");
     await AsyncStorage.removeItem("authToken");
     await AsyncStorage.removeItem("authUser");
     await AsyncStorage.removeItem("iduser");
@@ -196,7 +190,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   if (loading) {
-    console.log("Cargando pantalla...");
     return <LoadingScreen />;
   }
 
