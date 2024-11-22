@@ -19,6 +19,7 @@ const ReporteForm = () => {
   const [equipmentNumber, setEquipmentNumber] = useState("");
   const [comment, setComment] = useState("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const currentDate = new Date();
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -40,8 +41,42 @@ const ReporteForm = () => {
     };
   }, []);
 
-  const handleSubmit = () => {
-    console.log({ department, equipmentNumber, comment });
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const reportData = {
+      TituloReporte,
+      fechaCreacion: currentDate,
+      fechaHoraActualizacion: currentDate,
+      estado: "pendiente",
+      comentarios,
+      creadorReporte,
+      tecnicoAsignado,
+      idEquipos,
+    };
+
+    try {
+      const response = await fetch(
+        "https://backend-integradora.vercel.app/api/reportes",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(reportData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al guardar el reporte");
+      }
+
+      closeModal();
+    } catch (error) {
+      setError(error.message || "Algo salió mal");
+      closeModal();
+    }
   };
 
   return (
