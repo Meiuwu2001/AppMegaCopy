@@ -45,7 +45,7 @@ function TabNavigator() {
 
 function AppContent() {
   const { authState, loading } = useContext(AuthContext); // Desestructurar loading
- 
+
   if (loading) {
     return <LoadingScreen />; // Mostrar pantalla de carga mientras validas el token
   }

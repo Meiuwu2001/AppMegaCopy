@@ -302,4 +302,9 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 5,
   },
+  closeBtn: {
+    display: "flex",
+    margin: "auto",
+    marginBottom: 5,
+  },
 });

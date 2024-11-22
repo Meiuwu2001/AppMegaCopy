@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Image, Modal } from "react-native";
-import { styles } from "../components/themes/themes";
+import { styles } from "./themes/themes";
 import { Feather } from "@expo/vector-icons";
-import { SERVICES } from "../data/data";
 
-export default function ServiceModal({ selectedService, closeModal, token }) {
-  if (!selectedService) return null;
+export default function ReportModal({
+  selectedReport,
+  closeModal,
+  token,
+  rol,
+}) {
+  if (!selectedReport) return null;
 
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -121,7 +125,7 @@ export default function ServiceModal({ selectedService, closeModal, token }) {
     <Modal
       animationType="slide"
       transparent={true}
-      visible={!!selectedService}
+      visible={!!selectedReport}
       onRequestClose={closeModal}
     >
       <View style={styles.modalOverlay}>
@@ -133,23 +137,31 @@ export default function ServiceModal({ selectedService, closeModal, token }) {
                 source={require("../../assets/profile.jpg")}
                 style={styles.modalProfilePic}
               />
-              <Text style={styles.reporterName}>
-                Reportó{"\n"}
-                {selectedService.Cliente}
-              </Text>
+              {(rol === "admin" || rol === "tecnico") && (
+                <Text style={styles.reporterName}>
+                  Reportó{"\n"}
+                  {selectedReport.Cliente}
+                </Text>
+              )}
+              {rol === "cliente" && (
+                <Text style={styles.reporterName}>
+                  Técnico asinado:{"\n"}
+                  {selectedReport.tecnicoAsignado || "No asignado"}
+                </Text>
+              )}
             </View>
             <View
               style={[
                 styles.statusBadge,
                 {
                   backgroundColor: getStatusBackgroundColor(
-                    selectedService.estado
+                    selectedReport.estado
                   ),
                 },
               ]}
             >
               <Text style={styles.statusBadgeText}>
-                {getStatusText(selectedService.estado)}
+                {getStatusText(selectedReport.estado)}
               </Text>
             </View>
           </View>
@@ -158,23 +170,21 @@ export default function ServiceModal({ selectedService, closeModal, token }) {
           <View style={styles.serviceInfo}>
             <View style={styles.infoRow}>
               <Text style={styles.serviceDepartment}>
-                {selectedService.tituloReporte}
+                {selectedReport.tituloReporte}
               </Text>
               <Text style={styles.serviceEquipment}>
-                {selectedService.numeroEquipo}
+                {selectedReport.numeroEquipo}
               </Text>
             </View>
             <Text style={styles.departmentLabel}>
-              {selectedService.nombreUbicacion}
+              {selectedReport.nombreUbicacion}
             </Text>
           </View>
 
           {/* Comentario */}
           <View style={styles.commentSection}>
             <Text style={styles.commentLabel}>Comentario</Text>
-            <Text style={styles.commentText}>
-              {selectedService.comentarios}
-            </Text>
+            <Text style={styles.commentText}>{selectedReport.comentarios}</Text>
           </View>
 
           {/* Fecha y hora */}
@@ -182,38 +192,40 @@ export default function ServiceModal({ selectedService, closeModal, token }) {
             <View style={styles.timeRow}>
               <Text style={styles.timeLabel}>Fecha</Text>
               <Text style={styles.timeValue}>
-                {formatFecha(selectedService.fechaCreacion)}
+                {formatFecha(selectedReport.fechaCreacion)}
               </Text>
             </View>
             <View style={styles.timeRow}>
               <Text style={styles.timeLabel}>Hora</Text>
               <Text style={styles.timeValue}>
-                {formatHora(selectedService.fechaCreacion)}
+                {formatHora(selectedReport.fechaCreacion)}
               </Text>
             </View>
           </View>
 
           {/* Botón de acción según estado */}
-          {selectedService.estado === "pendiente" && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleStart(selectedService.IdReporte)}
-            >
-              <Text style={styles.actionButtonText}>Comenzar</Text>
-            </TouchableOpacity>
-          )}
-          {selectedService.estado === "ejecucion" && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleComplete(selectedService.IdReporte)}
-            >
-              <Text style={styles.actionButtonText}>Completar</Text>
-            </TouchableOpacity>
-          )}
+          {selectedReport.estado === "pendiente" &&
+            (rol === "admin" || rol === "tecnico") && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleStart(selectedReport.IdReporte)}
+              >
+                <Text style={styles.actionButtonText}>Comenzar</Text>
+              </TouchableOpacity>
+            )}
+          {selectedReport.estado === "ejecucion" &&
+            (rol === "admin" || rol === "tecnico") && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleComplete(selectedReport.IdReporte)}
+              >
+                <Text style={styles.actionButtonText}>Completar</Text>
+              </TouchableOpacity>
+            )}
 
           {/* Botón cerrar */}
           <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-            <Feather name="x" size={24} color="#666" />
+            <Feather name="x" size={24} color="#666" style={styles.closeBtn} />
           </TouchableOpacity>
         </View>
       </View>

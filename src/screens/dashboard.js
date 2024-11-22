@@ -13,47 +13,32 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { styles } from "../components/themes/themes";
-import { FILTERS, SERVICES, TECHNICIANS } from "../data/data";
-import ServiceModal from "../components/serviceModal";
+import { FILTERS } from "../data/data";
+import ReportModal from "../components/reportModal";
 import { AuthContext } from "../context/UsuarioContext";
-import axios from "axios";
 
 export default function Dashboard() {
   const { authState, loadUserDetails } = useContext(AuthContext);
   const { rol, iduser, userDetails, token } = authState;
   const [reports, setReports] = useState([]);
   const [activeFilter, setActiveFilter] = useState("todos");
-  const [selectedService, setSelectedService] = useState(null);
-  const [isServiceModalOpen, setIsAddReportModalOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [isReportModalOpen, setIsAddReportModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const scrollY = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  const fetchReports = async () => {
-    try {
-      const response = await axios.get(
-        "https://backend-integradora.vercel.app/api/reportesCreados",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setReports(response.data);
-    } catch (error) {
-      console.error("Error fetching Reports:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredReports = reports.filter((report) =>
     activeFilter === "todos" ? true : report.estado === activeFilter
   );
 
+  console.log(userDetails);
+
   const closeModal = () => {
     setIsAddReportModalOpen(false);
-    setSelectedService(null);
-    fetchReports();
+    setSelectedReport(null);
+    initializeDashboard();
   };
 
   React.useEffect(() => {
@@ -62,8 +47,72 @@ export default function Dashboard() {
       duration: 1000,
       useNativeDriver: true,
     }).start();
-    fetchReports();
-  }, []);
+    if (userDetails) {
+      initializeDashboard();
+    }
+  }, [userDetails]);
+
+  React.useEffect(() => {
+    if (rol && iduser) {
+      loadUserDetails(rol, iduser); // Solo depende de `rol` y `iduser`.
+    }
+  }, [iduser, rol]);
+
+  const initializeDashboard = async () => {
+    setLoading(true);
+    setError(null);
+
+    let clienteId = null;
+    let tecnicoId = null;
+
+    if (rol === "cliente" && userDetails) {
+      clienteId = userDetails.idClientes;
+    } else if (rol === "tecnico" && userDetails) {
+      tecnicoId = userDetails.idTecnicos;
+    }
+
+    const reportData = await LoadReportsDetails(clienteId, tecnicoId);
+    setReports(Array.isArray(reportData) ? reportData : []);
+  };
+  React.useEffect(() => {
+    if (userDetails) {
+      initializeDashboard();
+    }
+  }, [userDetails]);
+
+  const LoadReportsDetails = async (clienteId, tecnicoId) => {
+    try {
+      const endpointReportMap = {
+        admin: `https://backend-integradora.vercel.app/api/reportesCreados`,
+        cliente: `https://backend-integradora.vercel.app/api/reportesclientes/${clienteId}`,
+        tecnico: `https://backend-integradora.vercel.app/api/tecnicosreportes/${tecnicoId}`,
+      };
+
+      const endpointReport = endpointReportMap[rol];
+      const response = await fetch(endpointReport, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+      const result = await response.json();
+      if (result) {
+        console.log(
+          "LoadReportsDetails: Detalles del reporte obtenidos",
+          result
+        );
+        return result;
+      }
+    } catch (err) {
+      console.error(
+        "Reports: Error al obtener los detalles de los reportes:",
+        err.message
+      );
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -118,10 +167,22 @@ export default function Dashboard() {
           {/* Info Container */}
           <View style={styles.infoContainer}>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.greeting}>¡Hola, Carolina!</Text>
-              <Text style={styles.title}>
-                Aquí está{"\n"}la lista de reportes
-              </Text>
+              <Text style={styles.greeting}>¡Hola, {userDetails.user}!</Text>
+              {rol === "admin" && (
+                <Text style={styles.title}>
+                  Aquí está la lista{"\n"}completa de reportes
+                </Text>
+              )}
+              {rol === "tecnico" && (
+                <Text style={styles.title}>
+                  Aquí están tus{"\n"}reportes asignados
+                </Text>
+              )}
+              {rol === "cliente" && (
+                <Text style={styles.title}>
+                  Aquí están los reportes{"\n"}que has realizado
+                </Text>
+              )}
             </View>
             <View style={styles.profileContainer}>
               <Image
@@ -175,7 +236,7 @@ export default function Dashboard() {
           <TouchableOpacity
             key={report.IdReporte}
             onPress={() => {
-              setSelectedService(report);
+              setSelectedReport(report);
               setIsAddReportModalOpen(true);
             }}
           >
@@ -196,7 +257,7 @@ export default function Dashboard() {
               ]}
             >
               <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{report.nombreUbicacion}</Text>
+                <Text style={styles.cardTitle}>{report.tituloReporte}</Text>
                 <View style={styles.statusContainer}>
                   <View
                     style={[
@@ -209,17 +270,27 @@ export default function Dashboard() {
                   </Text>
                 </View>
               </View>
-              <Text style={styles.cardDescription}>{report.tituloReporte}</Text>
+              {(rol === "tecnico" || rol === "admin") && (
+                <Text style={styles.cardDescription}>
+                  {report.nombreUbicacion}
+                </Text>
+              )}
+              {rol === "cliente" && (
+                <Text style={styles.cardDescription}>
+                  {report.numeroEquipo}
+                </Text>
+              )}
             </Animated.View>
           </TouchableOpacity>
         ))}
       </Animated.ScrollView>
 
-      {isServiceModalOpen && (
-        <ServiceModal
-          selectedService={selectedService}
+      {isReportModalOpen && (
+        <ReportModal
+          selectedReport={selectedReport}
           closeModal={closeModal}
           token={token}
+          rol={rol}
         />
       )}
     </SafeAreaView>
