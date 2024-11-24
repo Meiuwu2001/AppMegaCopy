@@ -14,6 +14,9 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 function TabNavigator() {
+  const { authState } = useContext(AuthContext);
+  const { rol } = authState;
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -23,9 +26,7 @@ function TabNavigator() {
             iconName = "home";
           } else if (route.name === "Perfil") {
             iconName = "user";
-          } else if (route.name === "Ajustes") {
-            iconName = "settings";
-          } else if (route.name === "Reporte") {
+          } else if (route.name === "Reportar") {
             iconName = "file-text";
           }
           return <Feather name={iconName} size={size} color={color} />;
@@ -37,8 +38,9 @@ function TabNavigator() {
     >
       <Tab.Screen name="Inicio" component={Dashboard} />
       <Tab.Screen name="Perfil" component={Profile} />
-      <Tab.Screen name="Ajustes" component={Settings} />
-      <Tab.Screen name="Reporte" component={ReporteForm} />
+      {rol === "cliente" && (
+        <Tab.Screen name="Reportar" component={ReporteForm} />
+      )}
     </Tab.Navigator>
   );
 }

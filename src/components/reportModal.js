@@ -80,11 +80,11 @@ export default function ReportModal({
   const getStatusBackgroundColor = (status) => {
     switch (status) {
       case "pendiente":
-        return "#FFA500";
+        return "#ff006e";
       case "ejecucion":
-        return "#4CAF50";
+        return "#ffbe0b";
       case "concluido":
-        return "#2196F3";
+        return "#06d6a0";
       default:
         return "#666";
     }
@@ -133,21 +133,36 @@ export default function ReportModal({
           {/* Header con foto y estado */}
           <View style={styles.modalHeader}>
             <View style={styles.reporterInfo}>
-              <Image
-                source={require("../../assets/profile.jpg")}
-                style={styles.modalProfilePic}
+              <Feather
+                style={styles.icon}
+                name="users"
+                size={24}
+                color="white"
               />
-              {(rol === "admin" || rol === "tecnico") && (
+              {rol === "admin" && (
                 <Text style={styles.reporterName}>
                   Reportó{"\n"}
                   {selectedReport.Cliente}
                 </Text>
               )}
-              {rol === "cliente" && (
+              {rol === "tecnico" && (
                 <Text style={styles.reporterName}>
-                  Técnico asinado:{"\n"}
-                  {selectedReport.tecnicoAsignado || "No asignado"}
+                  Reportó{"\n"}
+                  {selectedReport.creadorReporte}
                 </Text>
+              )}
+              {rol === "cliente" && (
+                <View style={styles.technicianContainer}>
+                  {selectedReport.estado === "ejecucion" && (
+                    <Text style={styles.departmentLabel}>
+                      Un técnico ya va en camino
+                    </Text>
+                  )}
+                  <Text style={styles.reporterName}>
+                    Técnico asinado:{"\n"}
+                    {selectedReport.tecnicoAsignado || "No asignado"}
+                  </Text>
+                </View>
               )}
             </View>
             <View
@@ -176,14 +191,26 @@ export default function ReportModal({
                 {selectedReport.numeroEquipo}
               </Text>
             </View>
-            <Text style={styles.departmentLabel}>
-              {selectedReport.nombreUbicacion}
-            </Text>
+            {rol === "admin" && (
+              <Text style={styles.departmentLabel}>
+                {selectedReport.nombreUbicacion}
+              </Text>
+            )}
+            {rol === "cliente" && (
+              <Text style={styles.departmentLabel}>
+                {selectedReport.ubicacion}
+              </Text>
+            )}
+            {rol === "tecnico" && (
+              <Text style={styles.departmentLabel}>
+                {selectedReport.ubicacion}
+              </Text>
+            )}
           </View>
 
           {/* Comentario */}
           <View style={styles.commentSection}>
-            <Text style={styles.commentLabel}>Comentario</Text>
+            <Text style={styles.commentLabel}>Descripción el problema</Text>
             <Text style={styles.commentText}>{selectedReport.comentarios}</Text>
           </View>
 
@@ -225,7 +252,7 @@ export default function ReportModal({
 
           {/* Botón cerrar */}
           <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-            <Feather name="x" size={24} color="#666" style={styles.closeBtn} />
+            <Text style={styles.actionButtonText}>Cerrar</Text>
           </TouchableOpacity>
         </View>
       </View>

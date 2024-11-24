@@ -1,28 +1,10 @@
 import { StyleSheet } from "react-native";
 
-export const colores = {
-  uno: "#FFA500", // Naranja
-  dos: "#E9A9B4", // Rosa
-  tres: "#008000", // Verde
-  cuatro: "#FF8C00", // Naranja oscuro
-  cinco: "#60C389", // Verde claro
-  seis: "#FFFFFF", // Blanco
-  siete: "#E8838F", // Rosa fuerte
-  ocho: "black",
-  gris_claro: "#BDBBBB",
-  naranja_claro: "#FF995B",
-  rosa: "#E8A399",
-  verde: "#3CBD72",
-  rosa2: "#F3879B",
-  rosa3: "#E0707B",
-  gris_oscuro: "#3E4A3E",
-  naranja_oscuro: "#4A423E",
-};
-
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#00205B",
+    paddingTop: 30,
   },
   contentContainer: {
     paddingBottom: 10,
@@ -56,9 +38,6 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   profileContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
     overflow: "hidden",
     marginLeft: 15,
   },
@@ -233,7 +212,14 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
   },
   actionButton: {
-    backgroundColor: "#4751FF",
+    backgroundColor: "#2d57d1",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  closeButton: {
+    backgroundColor: "#666",
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -243,12 +229,6 @@ export const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "500",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    padding: 10,
   },
   technicianSelect: {
     marginTop: 20,
@@ -277,6 +257,15 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  textArea: {
+    backgroundColor: "#f5f5f5",
+    borderRadius: 10,
+    padding: 15,
+    fontSize: 16,
+    color: "#333",
+    height: 150, // Altura ajustada para un textArea
+    textAlignVertical: "top", // Alineación del texto al inicio
+  },
   cardLarge: {
     backgroundColor: "#fff",
     borderRadius: 15,
@@ -289,8 +278,8 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   titleLarge: {
-    color: "#fff",
-    fontSize: 28,
+    color: "#333",
+    fontSize: 15,
     fontWeight: "bold",
   },
   greetingLarge: {
@@ -306,5 +295,83 @@ export const styles = StyleSheet.create({
     display: "flex",
     margin: "auto",
     marginBottom: 5,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  selectButton: {
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  selectButtonText: {
+    color: "#333",
+    fontSize: 16,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    marginTop: "auto",
+    marginBottom: "auto",
+    maxHeight: "80%",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  modalItem: {
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginRight: 5,
+    marginLeft: 5,
+    marginTop: 5,
+  },
+  modalItemText: {
+    fontSize: 16,
+  },
+  errorText: {
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
+  },
+  technicianContainer: {
+    flexDirection: "column",
+  },
+  icon: {
+    marginRight: 10,
+    backgroundColor: "#2d57d1",
+    padding: 10,
+    borderRadius: 25,
+  },
+  icon2: {
+    backgroundColor: "#00205B",
+    borderRadius: 25,
   },
 });

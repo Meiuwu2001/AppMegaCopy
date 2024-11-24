@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -9,50 +9,90 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
   StatusBar,
 } from "react-native";
 import { styles } from "../components/themes/themes";
+import { AuthContext } from "../context/UsuarioContext";
+import EquipmentModal from "../components/equipmentModal";
+import TechnicianModal from "../components/technicianModal";
 
 const ReporteForm = () => {
-  const [department, setDepartment] = useState("");
-  const [equipmentNumber, setEquipmentNumber] = useState("");
-  const [comment, setComment] = useState("");
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const { authState } = useContext(AuthContext);
+  const { rol, userDetails, token } = authState;
+  const [TituloReporte, setTituloReporte] = useState("");
+  const [FolioReporte, setFolioReporte] = useState("");
+  const [comentarios, setComentarios] = useState("");
+  const [selectedEquipo, setSelectedEquipo] = useState(null);
+  const [tecnicoAsignado, setTecnicoAsignado] = useState(null);
+  const [showEquipmentModal, setShowEquipmentModal] = useState(false);
+  const [showTechnicianModal, setShowTechnicianModal] = useState(false);
+  const [equipos, setEquipos] = useState([]);
+  const [tecnicos, setTecnicos] = useState([]);
+  const [error, setError] = useState("");
   const currentDate = new Date();
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      () => {
-        setKeyboardVisible(true);
+    fetchEquipos();
+    fetchTecnicos();
+  }, [userDetails]);
+
+  const fetchEquipos = async () => {
+    try {
+      if (!userDetails?.idClientes) {
+        console.error("ID de cliente no disponible");
+        return;
       }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardVisible(false);
+
+      const response = await fetch(
+        `https://backend-integradora.vercel.app/api/ClienteEquipoUbicacion/${userDetails.idClientes}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
       }
-    );
 
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setEquipos(data);
+        console.log("Equipos obtenidos:", data);
+      } else {
+        console.error("Los datos recibidos no son un array:", data);
+        setEquipos([]);
+      }
+    } catch (error) {
+      console.error("Error fetching Equipos:", error);
+      setError("Error al cargar los equipos");
+    }
+  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const fetchTecnicos = async () => {
+    try {
+      const response = await fetch(
+        "https://backend-integradora.vercel.app/api/tecnicos",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await response.json();
+      setTecnicos(data);
+    } catch (error) {
+      console.error("Error fetching Tecnicos:", error);
+    }
+  };
 
+  const handleSubmit = async () => {
     const reportData = {
       TituloReporte,
+      FolioReporte,
       fechaCreacion: currentDate,
       fechaHoraActualizacion: currentDate,
       estado: "pendiente",
       comentarios,
-      creadorReporte,
-      tecnicoAsignado,
-      idEquipos,
+      creadorReporte: userDetails.idClientes,
+      idEquipos: selectedEquipo?.idEquipos,
     };
 
     try {
@@ -70,12 +110,18 @@ const ReporteForm = () => {
 
       if (!response.ok) {
         throw new Error("Error al guardar el reporte");
+      } else {
+        console.log("Si se pudo");
       }
 
-      closeModal();
+      // Limpiar formulario después de enviar
+      setTituloReporte("");
+      setFolioReporte("");
+      setComentarios("");
+      setSelectedEquipo(null);
+      setTecnicoAsignado(null);
     } catch (error) {
       setError(error.message || "Algo salió mal");
-      closeModal();
     }
   };
 
@@ -110,10 +156,6 @@ const ReporteForm = () => {
                 resizeMode="contain"
               />
             </View>
-
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.titleLarge}>Realiza tu{"\n"}solicitud</Text>
-            </View>
           </View>
         </View>
 
@@ -122,77 +164,93 @@ const ReporteForm = () => {
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
         >
           <View style={[styles.cardLarge, { margin: 20 }]}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
+            <View style={styles.headerSection}>
               <View>
                 <Text style={styles.dateTextLarge}>
-                  {new Date().toLocaleDateString()}
+                  {currentDate.toLocaleDateString()}
                 </Text>
-                <Text style={styles.greetingLarge}>¡Hola, Carlos!</Text>
-              </View>
-              <View style={styles.profileContainer}>
-                <Image
-                  source={require("../../assets/profile.jpg")}
-                  style={styles.profilePic}
-                />
+                <Text style={styles.greetingLarge}>Reportar un problema</Text>
               </View>
             </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Departamento"
-              value={department}
-              onChangeText={setDepartment}
-            />
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Problema</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese el problema"
+                value={TituloReporte}
+                onChangeText={setTituloReporte}
+              />
+            </View>
 
-            <View style={{ height: 10 }} />
+            {rol === "admin" && (
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Folio</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ingrese el folio"
+                  value={FolioReporte}
+                  onChangeText={setFolioReporte}
+                />
+              </View>
+            )}
 
-            <TextInput
-              style={styles.input}
-              placeholder="Numero del Equipo"
-              value={equipmentNumber}
-              onChangeText={setEquipmentNumber}
-            />
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Descripción del problema</Text>
+              <TextInput
+                style={[styles.textArea]}
+                placeholder="Ingrese la descripción detallada"
+                multiline={true}
+                numberOfLines={4}
+                value={comentarios}
+                onChangeText={setComentarios}
+              />
+            </View>
 
-            <View style={{ height: 10 }} />
-
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  height: 120,
-                  textAlignVertical: "top",
-                  marginBottom: 20,
-                },
-              ]}
-              placeholder="Comentario"
-              multiline={true}
-              numberOfLines={4}
-              value={comment}
-              onChangeText={setComment}
-            />
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Equipo</Text>
+              <TouchableOpacity
+                style={styles.selectButton}
+                onPress={() => setShowEquipmentModal(true)}
+              >
+                <Text style={styles.selectButtonText}>
+                  {selectedEquipo
+                    ? selectedEquipo.numeroEquipo
+                    : "Seleccionar equipo"}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity
-              style={{
-                backgroundColor: "#4751FF",
-                padding: 15,
-                borderRadius: 10,
-                alignItems: "center",
-              }}
+              style={styles.actionButton}
               onPress={handleSubmit}
             >
-              <Text style={{ color: "white", fontSize: 16, fontWeight: "500" }}>
-                Enviar
-              </Text>
+              <Text style={styles.actionButtonText}>Generar Reporte</Text>
             </TouchableOpacity>
+
+            {error !== "" && <Text style={styles.errorText}>{error}</Text>}
           </View>
         </ScrollView>
+
+        <EquipmentModal
+          visible={showEquipmentModal}
+          equipos={equipos}
+          onSelect={(equipo) => {
+            setSelectedEquipo(equipo);
+            setShowEquipmentModal(false);
+          }}
+          onClose={() => setShowEquipmentModal(false)}
+        />
+
+        <TechnicianModal
+          visible={showTechnicianModal}
+          tecnicos={tecnicos}
+          onSelect={(tecnico) => {
+            setTecnicoAsignado(tecnico);
+            setShowTechnicianModal(false);
+          }}
+          onClose={() => setShowTechnicianModal(false)}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

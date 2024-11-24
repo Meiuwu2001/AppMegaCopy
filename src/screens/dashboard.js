@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,14 +8,14 @@ import {
   Image,
   SafeAreaView,
   Animated,
-  Modal,
-  Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { styles } from "../components/themes/themes";
 import { FILTERS } from "../data/data";
 import ReportModal from "../components/reportModal";
 import { AuthContext } from "../context/UsuarioContext";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 
 export default function Dashboard() {
   const { authState, loadUserDetails } = useContext(AuthContext);
@@ -23,40 +23,52 @@ export default function Dashboard() {
   const [reports, setReports] = useState([]);
   const [activeFilter, setActiveFilter] = useState("todos");
   const [selectedReport, setSelectedReport] = useState(null);
-  const [isReportModalOpen, setIsAddReportModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const scrollY = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [shouldAnimate, setShouldAnimate] = useState(true); // Controla cuándo debe animar
+
+  console.log(token);
 
   const filteredReports = reports.filter((report) =>
     activeFilter === "todos" ? true : report.estado === activeFilter
   );
 
-  console.log(userDetails);
-
   const closeModal = () => {
-    setIsAddReportModalOpen(false);
+    setIsReportModalOpen(false);
     setSelectedReport(null);
-    initializeDashboard();
+    refreshDashboardData(); // Refresca los datos sin reiniciar la animación
   };
 
-  React.useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
+  useEffect(() => {
+    // Ejecutar animación solo si `shouldAnimate` es true
+    if (shouldAnimate) {
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start(() => setShouldAnimate(false)); // Desactiva la bandera después de animar
+    }
+  }, [shouldAnimate]);
+
+  useEffect(() => {
+    if (rol && iduser) {
+      const fetchDetails = async () => {
+        await loadUserDetails(rol, iduser); // Carga detalles del usuario
+        setLoading(false);
+      };
+      fetchDetails();
+    }
+  }, [rol, iduser]);
+
+  useEffect(() => {
     if (userDetails) {
       initializeDashboard();
     }
   }, [userDetails]);
-
-  React.useEffect(() => {
-    if (rol && iduser) {
-      loadUserDetails(rol, iduser); // Solo depende de `rol` y `iduser`.
-    }
-  }, [iduser, rol]);
 
   const initializeDashboard = async () => {
     setLoading(true);
@@ -73,12 +85,29 @@ export default function Dashboard() {
 
     const reportData = await LoadReportsDetails(clienteId, tecnicoId);
     setReports(Array.isArray(reportData) ? reportData : []);
-  };
-  React.useEffect(() => {
-    if (userDetails) {
-      initializeDashboard();
+    setLoading(false);
+
+    // Solo activa la animación en la carga inicial
+    if (!isReportModalOpen) {
+      setShouldAnimate(true);
     }
-  }, [userDetails]);
+  };
+
+  const refreshDashboardData = async () => {
+    setError(null);
+
+    let clienteId = null;
+    let tecnicoId = null;
+
+    if (rol === "cliente" && userDetails) {
+      clienteId = userDetails.idClientes;
+    } else if (rol === "tecnico" && userDetails) {
+      tecnicoId = userDetails.idTecnicos;
+    }
+
+    const reportData = await LoadReportsDetails(clienteId, tecnicoId);
+    setReports(Array.isArray(reportData) ? reportData : []);
+  };
 
   const LoadReportsDetails = async (clienteId, tecnicoId) => {
     try {
@@ -99,29 +128,24 @@ export default function Dashboard() {
 
       if (!response.ok) throw new Error(`Error: ${response.statusText}`);
       const result = await response.json();
-      if (result) {
-        console.log(
-          "LoadReportsDetails: Detalles del reporte obtenidos",
-          result
-        );
-        return result;
-      }
+      return result;
     } catch (err) {
       console.error(
         "Reports: Error al obtener los detalles de los reportes:",
         err.message
       );
+      setError("Error al cargar los reportes");
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case "pendiente":
-        return "#FFA500";
+        return "#ff006e";
       case "ejecucion":
-        return "#4CAF50";
+        return "#ffbe0b";
       case "concluido":
-        return "#2196F3";
+        return "#06d6a0";
       default:
         return "#666";
     }
@@ -134,7 +158,7 @@ export default function Dashboard() {
       case "ejecucion":
         return "En curso";
       case "concluido":
-        return "Completada";
+        return "Concluido";
       default:
         return status;
     }
@@ -146,6 +170,23 @@ export default function Dashboard() {
     extrapolate: "clamp",
   });
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#666" />
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -155,7 +196,6 @@ export default function Dashboard() {
         <Animated.View
           style={[styles.header, { transform: [{ scale: headerScale }] }]}
         >
-          {/* Logo Container */}
           <View style={styles.logoContainer}>
             <Image
               source={require("../../assets/logo.png")}
@@ -164,10 +204,11 @@ export default function Dashboard() {
             />
           </View>
 
-          {/* Info Container */}
           <View style={styles.infoContainer}>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.greeting}>¡Hola, {userDetails.user}!</Text>
+              <Text style={styles.greeting}>
+                ¡Hola, {userDetails?.nombre || "Usuario"}!
+              </Text>
               {rol === "admin" && (
                 <Text style={styles.title}>
                   Aquí está la lista{"\n"}completa de reportes
@@ -180,14 +221,16 @@ export default function Dashboard() {
               )}
               {rol === "cliente" && (
                 <Text style={styles.title}>
-                  Aquí están los reportes{"\n"}que has realizado
+                  Estos son los reportes{"\n"}que has realizado
                 </Text>
               )}
             </View>
             <View style={styles.profileContainer}>
-              <Image
-                source={require("../../assets/profile.jpg")}
-                style={styles.profilePic}
+              <FontAwesome
+                style={styles.icon2}
+                name="user-circle"
+                size={40}
+                color="#fff"
               />
             </View>
           </View>
@@ -237,7 +280,7 @@ export default function Dashboard() {
             key={report.IdReporte}
             onPress={() => {
               setSelectedReport(report);
-              setIsAddReportModalOpen(true);
+              setIsReportModalOpen(true);
             }}
           >
             <Animated.View
@@ -270,14 +313,19 @@ export default function Dashboard() {
                   </Text>
                 </View>
               </View>
-              {(rol === "tecnico" || rol === "admin") && (
-                <Text style={styles.cardDescription}>
-                  {report.nombreUbicacion}
-                </Text>
-              )}
               {rol === "cliente" && (
                 <Text style={styles.cardDescription}>
-                  {report.numeroEquipo}
+                  {report.comentarios || "Sin descripción"}
+                </Text>
+              )}
+              {rol === "tecnico" && (
+                <Text style={styles.cardDescription}>
+                  {report.ubicacion || "Ubicación no disponible"}
+                </Text>
+              )}
+              {rol === "admin" && (
+                <Text style={styles.cardDescription}>
+                  {report.nombreUbicacion || "Ubicación no disponible"}
                 </Text>
               )}
             </Animated.View>
@@ -285,6 +333,7 @@ export default function Dashboard() {
         ))}
       </Animated.ScrollView>
 
+      {/* Modals */}
       {isReportModalOpen && (
         <ReportModal
           selectedReport={selectedReport}

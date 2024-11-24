@@ -59,12 +59,6 @@ const Settings = () => {
 
   return (
     <View style={styles.container}>
-      {/* Tarjeta con el nombre de usuario */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Nombre de Usuario</Text>
-        <Text style={styles.cardText}>{user ? user.user : "Cargando..."}</Text>
-      </View>
-
       {/* Botón para abrir la modal de actualización de contraseña */}
       <TouchableOpacity
         style={styles.updatePasswordButton}
