@@ -9,8 +9,23 @@ export const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: 10,
   },
+  contentContainer2: {
+    paddingBottom: 10,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   header: {
     padding: 20,
+  },
+  header2: {
+    padding: 200,
+    position: "absolute",
+    backgroundColor: "#00205B",
+    borderRadius: 400,
+    margin: "auto",
+    top: -80,
+    zIndex: 1,
   },
   logoContainer: {
     alignItems: "center",
@@ -19,6 +34,11 @@ export const styles = StyleSheet.create({
   logo: {
     width: 90,
     height: 90,
+  },
+  logo2: {
+    width: 170,
+    height: 170,
+    marginTop: -100,
   },
   infoContainer: {
     flexDirection: "row",
@@ -78,6 +98,13 @@ export const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 20,
     marginTop: 0,
+    zIndex: 1,
+  },
+  cardContainer2: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 20,
+    marginTop: 0,
   },
   card: {
     backgroundColor: "#fff",
@@ -128,6 +155,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 20,
     padding: 20,
+    paddingTop: 25,
     width: "90%",
     maxHeight: "80%",
   },
@@ -155,6 +183,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
+    position: "absolute",
+    top: -10,
+    right: 0,
   },
   statusBadgeText: {
     color: "white",
@@ -177,6 +208,10 @@ export const styles = StyleSheet.create({
   serviceEquipment: {
     fontSize: 16,
     color: "#666",
+    marginRight: 5,
+    display: "flex",
+    flexDirection: "column",
+    gap: 5,
   },
   departmentLabel: {
     fontSize: 14,
@@ -189,6 +224,11 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 5,
+  },
+  equipmentLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#444",
   },
   commentText: {
     fontSize: 14,
@@ -220,6 +260,13 @@ export const styles = StyleSheet.create({
   },
   closeButton: {
     backgroundColor: "#666",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  deleteButton: {
+    backgroundColor: "#ed1926",
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -276,6 +323,8 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    zIndex: 4,
+    marginTop: 150,
   },
   titleLarge: {
     color: "#333",
@@ -284,7 +333,9 @@ export const styles = StyleSheet.create({
   },
   greetingLarge: {
     fontSize: 20,
-    marginBottom: 5,
+    fontWeight: 600,
+    marginBottom: 10,
+    color: "#444b66",
   },
   dateTextLarge: {
     color: "#666",
@@ -297,10 +348,10 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
-    color: "#333",
+    color: "#262b3e",
   },
   inputContainer: {
     marginBottom: 16,

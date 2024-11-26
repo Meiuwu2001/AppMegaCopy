@@ -40,8 +40,8 @@ export default function Profile() {
     if (userDetails) {
       setFormData({
         nombre: userDetails.nombre || "",
-        apellidoPa: userDetails.apellidoPa || "",
-        apellidoMa: userDetails.apellidoMa || "",
+        ApellidoPa: userDetails.ApellidoPa || "",
+        ApellidoMa: userDetails.ApellidoMa || "",
         Telefono: userDetails.Telefono || "",
         CorreoElectronico: userDetails.CorreoElectronico || "",
       });
@@ -135,7 +135,7 @@ export default function Profile() {
               </View>
               {(rol === "cliente" || rol === "tecnico") && (
                 <Text style={styles.profileName}>
-                  {`${userDetails.nombre} ${userDetails.apellidoPa} ${userDetails.apellidoMa}`}
+                  {`${userDetails.nombre} ${userDetails.ApellidoPa} ${userDetails.ApellidoMa}`}
                 </Text>
               )}
               {rol === "admin" && (

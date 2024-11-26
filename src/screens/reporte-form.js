@@ -132,37 +132,31 @@ const ReporteForm = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <View style={styles.contentContainer}>
-          <View style={styles.header}>
-            <View
-              style={[
-                styles.logoContainer,
-                {
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  paddingHorizontal: 20,
-                  width: "100%",
-                },
-              ]}
-            >
-              <Image
-                source={require("../../assets/logo.png")}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-              <Image
-                source={require("../../assets/brother-logo.png")}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
-          </View>
-        </View>
-
         <ScrollView
-          style={styles.cardContainer}
+          style={styles.cardContainer2}
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
         >
+          <View style={styles.contentContainer2}>
+            <View style={styles.header2}>
+              <View
+                style={[
+                  styles.logoContainer,
+                  {
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    paddingHorizontal: 20,
+                    width: "100%",
+                  },
+                ]}
+              >
+                <Image
+                  source={require("../../assets/logo.png")}
+                  style={styles.logo2}
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+          </View>
           <View style={[styles.cardLarge, { margin: 20 }]}>
             <View style={styles.headerSection}>
               <View>

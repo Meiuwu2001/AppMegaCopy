@@ -77,6 +77,28 @@ export default function ReportModal({
     }
   };
 
+  const handleDelete = async (IdReporte) => {
+    try {
+      const response = await fetch(
+        `https://backend-integradora.vercel.app/api/reportes/${IdReporte}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        closeModal();
+      } else {
+        console.error("Failed to delete product");
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
   const getStatusBackgroundColor = (status) => {
     switch (status) {
       case "pendiente":
@@ -155,7 +177,7 @@ export default function ReportModal({
                 <View style={styles.technicianContainer}>
                   {selectedReport.estado === "ejecucion" && (
                     <Text style={styles.departmentLabel}>
-                      Un técnico ya va en camino
+                      Un técnico va en camino
                     </Text>
                   )}
                   <Text style={styles.reporterName}>
@@ -188,6 +210,7 @@ export default function ReportModal({
                 {selectedReport.tituloReporte}
               </Text>
               <Text style={styles.serviceEquipment}>
+                <Text style={styles.equipmentLabel}>Equipo{"\n"}</Text>
                 {selectedReport.numeroEquipo}
               </Text>
             </View>
@@ -253,6 +276,14 @@ export default function ReportModal({
           {/* Botón cerrar */}
           <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
             <Text style={styles.actionButtonText}>Cerrar</Text>
+          </TouchableOpacity>
+
+          {/* Botón eliminar */}
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDelete(selectedReport.IdReporte)}
+          >
+            <Text style={styles.actionButtonText}>Eliminar</Text>
           </TouchableOpacity>
         </View>
       </View>
