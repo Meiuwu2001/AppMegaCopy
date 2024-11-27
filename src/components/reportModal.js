@@ -280,7 +280,7 @@ export default function ReportModal({
           {selectedReport.estado === "pendiente" &&
             (rol === "admin" || rol === "tecnico") && (
               <TouchableOpacity
-                style={styles.actionButton}
+                style={styles.startButton}
                 onPress={() => handleStart(selectedReport.IdReporte)}
               >
                 <Text style={styles.actionButtonText}>Comenzar</Text>
@@ -297,20 +297,26 @@ export default function ReportModal({
             )}
 
           {/* Botón eliminar */}
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => handleDelete(selectedReport.IdReporte)}
-          >
-            <Text style={styles.actionButtonText}>Eliminar</Text>
-          </TouchableOpacity>
+          {((rol === "cliente" && selectedReport.estado !== "concluido") ||
+            rol === "admin") && (
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDelete(selectedReport.IdReporte)}
+            >
+              <Text style={styles.actionButtonText}>Eliminar</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Botón editar */}
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => setIsEditModalVisible(true)}
-          >
-            <Text style={styles.actionButtonText}>Editar</Text>
-          </TouchableOpacity>
+          {((rol === "cliente" && selectedReport.estado !== "concluido") ||
+            rol === "admin") && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setIsEditModalVisible(true)}
+            >
+              <Text style={styles.actionButtonText}>Editar</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Botón cerrar */}
           <TouchableOpacity style={styles.closeButton} onPress={closeModal}>

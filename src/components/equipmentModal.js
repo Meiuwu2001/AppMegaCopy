@@ -20,7 +20,7 @@ const EquipmentModal = ({ visible, equipos, onSelect, onClose }) => {
                 <Text style={styles.modalItemText}>
                   <Feather name="printer" size={24} color="#666" />
                   {"  "}
-                  {item.numeroEquipo}
+                  {item.numeroEquipo || item.NumeroEquipo}
                 </Text>
               </TouchableOpacity>
             )}

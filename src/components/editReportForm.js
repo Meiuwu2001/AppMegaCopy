@@ -20,7 +20,6 @@ export const EditReportForm = ({ selectedReport, closeEditModal, token }) => {
     fetchEquipos();
   }, []);
 
-  console.log(equipos);
   const fetchEquipos = async () => {
     try {
       const response = await fetch(
@@ -46,7 +45,6 @@ export const EditReportForm = ({ selectedReport, closeEditModal, token }) => {
       tituloReporte: TituloReporte,
       comentarios,
       idEquipos: selectedEquipo?.idEquipos, // Solo envía el ID del equipo
-      fechaHoraActualizacion: new Date(),
     };
 
     try {
@@ -113,7 +111,7 @@ export const EditReportForm = ({ selectedReport, closeEditModal, token }) => {
             >
               <Text style={styles.selectButtonText}>
                 {selectedEquipo
-                  ? selectedEquipo.numeroEquipo
+                  ? selectedEquipo.NumeroEquipo
                   : "Seleccionar equipo"}
               </Text>
             </TouchableOpacity>

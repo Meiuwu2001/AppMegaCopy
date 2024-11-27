@@ -258,6 +258,13 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
+  startButton: {
+    backgroundColor: "#0ec141",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
   closeButton: {
     backgroundColor: "#666",
     paddingVertical: 12,
