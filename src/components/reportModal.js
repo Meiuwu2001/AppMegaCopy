@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Image, Modal } from "react-native";
 import { styles } from "./themes/themes";
 import { Feather } from "@expo/vector-icons";
+import { EditReportForm } from "./editReportForm";
 
 export default function ReportModal({
   selectedReport,
@@ -12,6 +13,8 @@ export default function ReportModal({
   if (!selectedReport) return null;
 
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
   const handleComplete = async (IdReporte) => {
     const currentDate = new Date();
@@ -143,6 +146,26 @@ export default function ReportModal({
     return `${horaFormateada}`;
   };
 
+  const formatTextToLines = (text, maxCharsPerLine = 25) => {
+    if (!text) return "";
+    const words = text.split(" ");
+    let currentLine = "";
+    let formattedText = "";
+
+    words.forEach((word) => {
+      if ((currentLine + word).length > maxCharsPerLine) {
+        formattedText += `${currentLine}\n`;
+        currentLine = word + " ";
+      } else {
+        currentLine += word + " ";
+      }
+    });
+
+    // Agrega la última línea
+    formattedText += currentLine.trim();
+    return formattedText;
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -207,7 +230,7 @@ export default function ReportModal({
           <View style={styles.serviceInfo}>
             <View style={styles.infoRow}>
               <Text style={styles.serviceDepartment}>
-                {selectedReport.tituloReporte}
+                {formatTextToLines(selectedReport.tituloReporte)}
               </Text>
               <Text style={styles.serviceEquipment}>
                 <Text style={styles.equipmentLabel}>Equipo{"\n"}</Text>
@@ -273,11 +296,6 @@ export default function ReportModal({
               </TouchableOpacity>
             )}
 
-          {/* Botón cerrar */}
-          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-            <Text style={styles.actionButtonText}>Cerrar</Text>
-          </TouchableOpacity>
-
           {/* Botón eliminar */}
           <TouchableOpacity
             style={styles.deleteButton}
@@ -285,8 +303,28 @@ export default function ReportModal({
           >
             <Text style={styles.actionButtonText}>Eliminar</Text>
           </TouchableOpacity>
+
+          {/* Botón editar */}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => setIsEditModalVisible(true)}
+          >
+            <Text style={styles.actionButtonText}>Editar</Text>
+          </TouchableOpacity>
+
+          {/* Botón cerrar */}
+          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+            <Text style={styles.actionButtonText}>Cerrar</Text>
+          </TouchableOpacity>
         </View>
       </View>
+      {isEditModalVisible && (
+        <EditReportForm
+          selectedReport={selectedReport}
+          closeEditModal={() => setIsEditModalVisible(false)}
+          token={token}
+        />
+      )}
     </Modal>
   );
 }

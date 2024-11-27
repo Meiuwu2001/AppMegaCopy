@@ -187,6 +187,13 @@ export default function Dashboard() {
     );
   }
 
+  const truncateText = (text, maxLength) => {
+    if (!text || text.length <= maxLength) {
+      return text;
+    }
+    return `${text.slice(0, maxLength)}...`;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -300,7 +307,9 @@ export default function Dashboard() {
               ]}
             >
               <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{report.tituloReporte}</Text>
+                <Text style={styles.cardTitle}>
+                  {truncateText(report.tituloReporte || "No disponible", 28)}
+                </Text>
                 <View style={styles.statusContainer}>
                   <View
                     style={[
@@ -315,17 +324,23 @@ export default function Dashboard() {
               </View>
               {rol === "cliente" && (
                 <Text style={styles.cardDescription}>
-                  {report.comentarios || "Sin descripción"}
+                  {truncateText(report.comentarios || "Sin descripción", 100)}
                 </Text>
               )}
               {rol === "tecnico" && (
                 <Text style={styles.cardDescription}>
-                  {report.ubicacion || "Ubicación no disponible"}
+                  {truncateText(
+                    report.ubicacion || "Ubicación no disponible",
+                    100
+                  )}
                 </Text>
               )}
               {rol === "admin" && (
                 <Text style={styles.cardDescription}>
-                  {report.nombreUbicacion || "Ubicación no disponible"}
+                  {truncateText(
+                    report.nombreUbicacion || "Ubicación no disponible",
+                    100
+                  )}
                 </Text>
               )}
             </Animated.View>

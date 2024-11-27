@@ -30,6 +30,8 @@ export default function Profile() {
     confirmPassword: "",
   });
 
+  console.log(userDetails);
+
   useEffect(() => {
     if (rol && iduser) {
       loadUserDetails(rol, iduser);
@@ -40,8 +42,8 @@ export default function Profile() {
     if (userDetails) {
       setFormData({
         nombre: userDetails.nombre || "",
-        ApellidoPa: userDetails.ApellidoPa || "",
-        ApellidoMa: userDetails.ApellidoMa || "",
+        apellidoPa: userDetails.apellidoPa || userDetails.apellidoPa || "",
+        apellidoMa: userDetails.apellidoMa || userDetails.apellidoMa || "",
         Telefono: userDetails.Telefono || "",
         CorreoElectronico: userDetails.CorreoElectronico || "",
       });
@@ -135,12 +137,12 @@ export default function Profile() {
               </View>
               {(rol === "cliente" || rol === "tecnico") && (
                 <Text style={styles.profileName}>
-                  {`${userDetails.nombre} ${userDetails.ApellidoPa} ${userDetails.ApellidoMa}`}
+                  {`${userDetails.nombre} ${userDetails.apellidoPa} ${userDetails.apellidoMa}`}
                 </Text>
               )}
               {rol === "admin" && (
                 <Text style={styles.profileName}>
-                  {userDetails.nombre || "Usuario"}
+                  {userDetails.nombre || "Administrador"}
                 </Text>
               )}
               <Text style={styles.profileRole}>

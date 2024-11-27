@@ -272,6 +272,14 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
+  editButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+
   actionButtonText: {
     color: "white",
     fontSize: 16,
