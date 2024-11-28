@@ -13,6 +13,7 @@ import {
 import { AuthContext } from "../context/UsuarioContext";
 import { FontAwesome, Feather } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Toast from "react-native-toast-message";
 
 export default function Profile() {
   const { authState, loadUserDetails, signOut } = useContext(AuthContext);
@@ -32,7 +33,33 @@ export default function Profile() {
     confirmPassword: "",
   });
 
-  console.log(userDetails);
+  const showToastSuccessEditProfile = () => {
+    Toast.show({
+      type: "success",
+      text1: "Perfil actualizado con éxito!",
+    });
+  };
+
+  const showToastErrorEditProfile = () => {
+    Toast.show({
+      type: "error",
+      text1: "Hubo un problema al actualizar el perfil",
+    });
+  };
+
+  const showToastSuccessEditPassword = () => {
+    Toast.show({
+      type: "success",
+      text1: "Contraseña actualizada con éxito!",
+    });
+  };
+
+  const showToastErrorEditPassword = () => {
+    Toast.show({
+      type: "error",
+      text1: "Hubo un problema al actualizar la contraseña",
+    });
+  };
 
   useEffect(() => {
     if (rol && iduser) {
@@ -82,10 +109,15 @@ export default function Profile() {
       });
 
       if (!response.ok) {
+        showToastErrorEditProfile();
         throw new Error("Error al actualizar los datos.");
+      } else {
+        showToastSuccessEditProfile();
       }
-      Alert.alert("Éxito", "Datos actualizados exitosamente.");
-      closeModal();
+
+      setTimeout(() => {
+        closeModal();
+      }, 2000);
       loadUserDetails(rol, iduser);
     } catch (error) {
       Alert.alert("Error", error.message);
@@ -110,10 +142,16 @@ export default function Profile() {
         }
       );
 
-      if (!response.ok) throw new Error("Error al actualizar la contraseña");
+      if (!response.ok) {
+        showToastErrorEditPassword();
+        throw new Error("Error al actualizar la contraseña");
+      } else {
+        showToastSuccessEditPassword();
+      }
 
-      Alert.alert("Éxito", "Contraseña actualizada exitosamente");
-      closePasswordModal();
+      setTimeout(() => {
+        closePasswordModal();
+      }, 2000);
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -305,6 +343,7 @@ export default function Profile() {
             </View>
           </View>
         </KeyboardAwareScrollView>
+        <Toast />
       </Modal>
 
       {/* Modal de cambio de contraseña */}
@@ -371,6 +410,7 @@ export default function Profile() {
             </View>
           </View>
         </KeyboardAwareScrollView>
+        <Toast />
       </Modal>
     </View>
   );

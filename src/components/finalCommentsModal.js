@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { styles } from "./themes/themes";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Toast from "react-native-toast-message";
 
 export const FinalCommentsModal = ({
   visible,
@@ -19,6 +20,20 @@ export const FinalCommentsModal = ({
 }) => {
   const [finalComments, setFinalComments] = useState("");
   const [error, setError] = useState("");
+
+  const showToastSuccessCompleteService = () => {
+    Toast.show({
+      type: "success",
+      text1: "Servicio concluido con éxito!",
+    });
+  };
+
+  const showToastErrorCompleteService = () => {
+    Toast.show({
+      type: "error",
+      text1: "Hubo un problema al concluir el servicio",
+    });
+  };
 
   const handleConfirm = async () => {
     if (!finalComments.trim()) {
@@ -47,10 +62,13 @@ export const FinalCommentsModal = ({
       );
 
       if (!response.ok) {
+        showToastErrorCompleteService();
         throw new Error("Error al concluir el reporte");
+      } else {
+        showToastSuccessCompleteService();
       }
 
-      onConfirm(finalComments.trim());
+      setTimeout(() => onConfirm(finalComments.trim()), 1000);
     } catch (error) {
       console.error("Error al concluir el reporte:", error);
       setError(error instanceof Error ? error.message : "Algo salió mal");
@@ -96,6 +114,7 @@ export const FinalCommentsModal = ({
           </View>
         </View>
       </KeyboardAwareScrollView>
+      <Toast />
     </Modal>
   );
 };

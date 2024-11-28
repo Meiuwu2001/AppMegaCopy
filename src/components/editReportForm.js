@@ -10,6 +10,7 @@ import {
 import { styles } from "../components/themes/themes";
 import EquipmentModal from "./equipmentModal";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Toast from "react-native-toast-message";
 
 export const EditReportForm = ({
   selectedReport,
@@ -32,6 +33,20 @@ export const EditReportForm = ({
   useEffect(() => {
     fetchEquipos();
   }, []);
+
+  const showToastSuccess = () => {
+    Toast.show({
+      type: "success",
+      text1: "Reporte editado con éxito!",
+    });
+  };
+
+  const showToastError = () => {
+    Toast.show({
+      type: "error",
+      text1: "Hubo un problema al editar el reporte",
+    });
+  };
 
   const getEndpoint = (idClientes) => {
     if (idClientes) {
@@ -88,10 +103,13 @@ export const EditReportForm = ({
       );
 
       if (!response.ok) {
+        showToastError();
         throw new Error("Error al actualizar el reporte");
+      } else {
+        showToastSuccess();
       }
 
-      closeEditModal();
+      setTimeout(() => closeEditModal(), 2000);
     } catch (error) {
       console.error("Error updating report:", error);
     }
@@ -177,6 +195,7 @@ export const EditReportForm = ({
           onClose={() => setShowEquipmentModal(false)}
         />
       </KeyboardAwareScrollView>
+      <Toast />
     </Modal>
   );
 };

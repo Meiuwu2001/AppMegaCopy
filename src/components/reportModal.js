@@ -5,6 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import { EditReportForm } from "./editReportForm";
 import { FinalCommentsModal } from "../components/finalCommentsModal";
 import TechnicianModal from "../components/technicianModal";
+import Toast from "react-native-toast-message";
 
 export default function ReportModal({
   selectedReport,
@@ -20,7 +21,46 @@ export default function ReportModal({
   const [isFinalCommentsModalVisible, setIsFinalCommentsModalVisible] =
     useState(false);
   const [showTechnicianModal, setShowTechnicianModal] = useState(false);
+  const [
+    isDeleteConfirmationModalVisible,
+    setIsDeleteConfirmationModalVisible,
+  ] = useState(false);
   const [tecnicos, setTecnicos] = useState([]);
+
+  const showToastSuccessTechnician = () => {
+    Toast.show({
+      type: "success",
+      text1: "Técnico asignado con éxito!",
+    });
+  };
+
+  const showToastErrorTechnician = () => {
+    Toast.show({
+      type: "error",
+      text1: "Hubo un problema al asignar el técnico",
+    });
+  };
+
+  const showToastSuccessDelete = () => {
+    Toast.show({
+      type: "success",
+      text1: "Reporte eliminado con éxito",
+    });
+  };
+
+  const showToastSuccessStartService = () => {
+    Toast.show({
+      type: "success",
+      text1: "Servicio comenzado con éxito!",
+    });
+  };
+
+  const showToastErrorStartService = () => {
+    Toast.show({
+      type: "error",
+      text1: "Hubo un problema al comenzar el servicio",
+    });
+  };
 
   const handleComplete = () => {
     // Instead of directly changing the state, show the final comments modal
@@ -66,7 +106,10 @@ export default function ReportModal({
       );
 
       if (!response.ok) {
+        showToastErrorTechnician();
         throw new Error("Error al asignar técnico");
+      } else {
+        showToastSuccessTechnician();
       }
 
       // Update the local state to reflect the new technician
@@ -96,12 +139,15 @@ export default function ReportModal({
       );
 
       if (!response.ok) {
+        showToastErrorStartService();
         throw new Error("Error al completar el reporte");
+      } else {
+        showToastSuccessStartService();
       }
 
       setSuccessMessage("Reporte completado exitosamente.");
       console.log(successMessage);
-      closeModal();
+      setTimeout(() => closeModal(), 2000);
     } catch (error) {
       setError(error.message || "Algo salió mal");
       console.error(error);
@@ -121,9 +167,12 @@ export default function ReportModal({
       );
 
       if (response.ok) {
-        closeModal();
+        showToastSuccessDelete();
+        setTimeout(() => {
+          closeModal();
+        }, 2000);
       } else {
-        console.error("Failed to delete product");
+        console.error("Failed to delete report");
       }
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -397,7 +446,7 @@ export default function ReportModal({
             rol === "admin") && (
             <TouchableOpacity
               style={styles.deleteButton}
-              onPress={() => handleDelete(selectedReport.IdReporte)}
+              onPress={() => setIsDeleteConfirmationModalVisible(true)}
             >
               <Text style={styles.actionButtonText}>Eliminar</Text>
             </TouchableOpacity>
@@ -449,6 +498,40 @@ export default function ReportModal({
         }}
         onClose={() => setShowTechnicianModal(false)}
       />
+
+      {/* Modal de confirmación para eliminar */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isDeleteConfirmationModalVisible}
+        onRequestClose={() => setIsDeleteConfirmationModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmationModal}>
+            <Text style={styles.confirmationText}>
+              ¿Estás seguro de que deseas eliminar este reporte?
+            </Text>
+            <View style={styles.confirmationButtons}>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={() => {
+                  handleDelete(selectedReport.IdReporte);
+                  setIsDeleteConfirmationModalVisible(false);
+                }}
+              >
+                <Text style={styles.actionButtonText}>Sí</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setIsDeleteConfirmationModalVisible(false)}
+              >
+                <Text style={styles.actionButtonText}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Toast />
     </Modal>
   );
 }

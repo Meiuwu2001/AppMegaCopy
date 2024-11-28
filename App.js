@@ -6,9 +6,9 @@ import { Feather } from "@expo/vector-icons";
 import { AuthProvider, AuthContext } from "./src/context/UsuarioContext";
 import Dashboard from "./src/screens/dashboard";
 import Profile from "./src/screens/profile";
-import Settings from "./src/screens/settings";
 import ReporteForm from "./src/screens/reporte-form";
 import Login from "./src/screens/login";
+import Toast from "react-native-toast-message";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -31,16 +31,17 @@ function TabNavigator() {
           }
           return <Feather name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "#00205B",
+        tabBarActiveTintColor: "#083992",
         tabBarInactiveTintColor: "#666",
         headerShown: false,
       })}
     >
       <Tab.Screen name="Inicio" component={Dashboard} />
-      <Tab.Screen name="Perfil" component={Profile} />
+
       {rol !== "tecnico" && (
         <Tab.Screen name="Reportar" component={ReporteForm} />
       )}
+      <Tab.Screen name="Perfil" component={Profile} />
     </Tab.Navigator>
   );
 }
@@ -68,6 +69,7 @@ export default function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <Toast />
     </AuthProvider>
   );
 }

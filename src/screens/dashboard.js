@@ -15,7 +15,6 @@ import { styles } from "../components/themes/themes";
 import { FILTERS } from "../data/data";
 import ReportModal from "../components/reportModal";
 import { AuthContext } from "../context/UsuarioContext";
-import { FontAwesome } from "@expo/vector-icons";
 import { AlertCircle, Clock, CheckCircle } from "lucide-react-native";
 
 export default function Dashboard() {
@@ -260,9 +259,16 @@ export default function Dashboard() {
         >
           <View style={styles.infoContainer}>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.greeting}>
-                ¡Hola, {userDetails?.nombre || "Usuario"}!
-              </Text>
+              {rol !== "admin" && (
+                <Text style={styles.greeting}>
+                  ¡Hola, {userDetails?.nombre || "Usuario"}!
+                </Text>
+              )}
+              {rol === "admin" && (
+                <Text style={styles.greeting}>
+                  ¡Hola, {userDetails?.nombre || "Administrador"}!
+                </Text>
+              )}
               {rol === "admin" && (
                 <Text style={styles.title}>
                   Aquí está la lista{"\n"}completa de reportes

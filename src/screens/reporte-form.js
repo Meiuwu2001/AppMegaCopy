@@ -16,6 +16,7 @@ import EquipmentModal from "../components/equipmentModal";
 import TechnicianModal from "../components/technicianModal";
 import ClienteModal from "../components/clienteModal";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Toast from "react-native-toast-message";
 
 const ReporteForm = () => {
   const { authState } = useContext(AuthContext);
@@ -50,6 +51,20 @@ const ReporteForm = () => {
     fetchTecnicos();
     fetchClientes();
   }, [userDetails]);
+
+  const showToastSuccess = () => {
+    Toast.show({
+      type: "success",
+      text1: "Reporte generado con éxito!",
+    });
+  };
+
+  const showToastError = () => {
+    Toast.show({
+      type: "error",
+      text1: "Hubo un problema al generar el reporte",
+    });
+  };
 
   const getEndpoint = (idClientes) => {
     if (idClientes) {
@@ -142,7 +157,10 @@ const ReporteForm = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Error al guardar el reporte");
+        showToastError();
+        throw new Error("Hubo un problema al generar el reporte");
+      } else {
+        showToastSuccess();
       }
 
       // Reset form
