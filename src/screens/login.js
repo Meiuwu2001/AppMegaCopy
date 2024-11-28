@@ -15,7 +15,8 @@ import {
 import { AuthContext } from "../context/UsuarioContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Lock, User } from "lucide-react-native";
+import { Lock, User, Clipboard } from "lucide-react-native";
+import * as ClipboardModule from "expo-clipboard";
 
 const Login = ({ navigation }) => {
   const [user, setUser] = useState("");
@@ -24,6 +25,7 @@ const Login = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPasswordRecovery, setShowPasswordRecovery] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -64,6 +66,12 @@ const Login = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCopyPhone = () => {
+    ClipboardModule.setString("618-825-3884"); // Copia el número al portapapeles
+    setIsCopied(true); // Cambia el estado para indicar que se copió
+    setTimeout(() => setIsCopied(false), 2000); // Restablece el estado después de 2 segundos
   };
 
   return (
@@ -148,8 +156,13 @@ const Login = ({ navigation }) => {
                     Puedes contactarte con un administrador para recuperar tu
                     contraseña.
                   </Text>
-                  <Text style={styles.recoveryPhone}>
-                    Teléfono: 618-825-3884
+                  <Text onPress={handleCopyPhone} style={styles.recoveryPhone}>
+                    Teléfono: 618-825-3884{" "}
+                    <Clipboard
+                      size={17}
+                      color="#3658bb"
+                      style={styles.copyIcon}
+                    />
                   </Text>
                 </View>
               )}
@@ -281,6 +294,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#3658bb",
     fontWeight: 600,
+  },
+  copyIcon: {
+    marginLeft: 5,
+    margin: "auto",
   },
 });
 

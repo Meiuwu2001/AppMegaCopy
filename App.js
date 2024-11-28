@@ -6,6 +6,7 @@ import { Feather } from "@expo/vector-icons";
 import { AuthProvider, AuthContext } from "./src/context/UsuarioContext";
 import Dashboard from "./src/screens/dashboard";
 import Profile from "./src/screens/profile";
+import ContactInfo from "./src/screens/contactInfo";
 import ReporteForm from "./src/screens/reporte-form";
 import Login from "./src/screens/login";
 import Toast from "react-native-toast-message";
@@ -28,6 +29,8 @@ function TabNavigator() {
             iconName = "user";
           } else if (route.name === "Reportar") {
             iconName = "file-text";
+          } else if (route.name === "Contacto") {
+            iconName = "book";
           }
           return <Feather name={iconName} size={size} color={color} />;
         },
@@ -42,6 +45,7 @@ function TabNavigator() {
         <Tab.Screen name="Reportar" component={ReporteForm} />
       )}
       <Tab.Screen name="Perfil" component={Profile} />
+      <Tab.Screen name="Contacto" component={ContactInfo} />
     </Tab.Navigator>
   );
 }
