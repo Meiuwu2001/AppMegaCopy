@@ -3,49 +3,77 @@ import { View, Text, TouchableOpacity, Image, Modal } from "react-native";
 import { styles } from "./themes/themes";
 import { Feather } from "@expo/vector-icons";
 import { EditReportForm } from "./editReportForm";
+import { FinalCommentsModal } from "../components/finalCommentsModal";
+import TechnicianModal from "../components/technicianModal";
 
 export default function ReportModal({
   selectedReport,
   closeModal,
   token,
   rol,
+  userDetails,
 }) {
   if (!selectedReport) return null;
 
   const [successMessage, setSuccessMessage] = useState("");
-
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isFinalCommentsModalVisible, setIsFinalCommentsModalVisible] =
+    useState(false);
+  const [showTechnicianModal, setShowTechnicianModal] = useState(false);
+  const [tecnicos, setTecnicos] = useState([]);
 
-  const handleComplete = async (IdReporte) => {
-    const currentDate = new Date();
-    const reportData = {
-      estado: "concluido",
-      fechaHoraActualizacion: currentDate,
-    };
+  const handleComplete = () => {
+    // Instead of directly changing the state, show the final comments modal
+    setIsFinalCommentsModalVisible(true);
+  };
 
+  const handleFinalCommentConfirm = (comments) => {
+    // Close both the final comments modal and the report modal
+    setIsFinalCommentsModalVisible(false);
+    setSuccessMessage("Reporte completado exitosamente.");
+    closeModal();
+  };
+
+  const fetchTecnicos = async () => {
     try {
       const response = await fetch(
-        `https://backend-integradora.vercel.app/api/reportes/${IdReporte}`,
+        "https://backend-integradora.vercel.app/api/tecnicos",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await response.json();
+      setTecnicos(data);
+    } catch (error) {
+      console.error("Error fetching Tecnicos:", error);
+    }
+  };
+
+  const handleAssignTechnician = async (tecnico) => {
+    try {
+      const response = await fetch(
+        `https://backend-integradora.vercel.app/api/reportes/${selectedReport.IdReporte}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(reportData),
+          body: JSON.stringify({
+            tecnicoAsignado: tecnico.idTecnicos,
+          }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Error al completar el reporte");
+        throw new Error("Error al asignar técnico");
       }
 
-      setSuccessMessage("Reporte completado exitosamente.");
-      console.log(successMessage);
-      closeModal();
+      // Update the local state to reflect the new technician
+      selectedReport.tecnicoAsignado = `${tecnico.Nombre} ${tecnico.ApellidoPa}`;
+      setShowTechnicianModal(false);
     } catch (error) {
-      setError(error.message || "Algo salió mal");
-      console.error(error);
+      console.error("Error asignando técnico:", error);
     }
   };
 
@@ -229,36 +257,75 @@ export default function ReportModal({
           {/* Información del servicio */}
           <View style={styles.serviceInfo}>
             <View style={styles.infoRow}>
-              <Text style={styles.serviceDepartment}>
-                {formatTextToLines(selectedReport.tituloReporte)}
-              </Text>
-              <Text style={styles.serviceEquipment}>
-                <Text style={styles.equipmentLabel}>Equipo{"\n"}</Text>
-                {selectedReport.numeroEquipo}
+              <Text style={styles.reportTitle}>
+                {selectedReport.tituloReporte}
               </Text>
             </View>
-            {rol === "admin" && (
-              <Text style={styles.departmentLabel}>
-                {selectedReport.nombreUbicacion}
-              </Text>
-            )}
-            {rol === "cliente" && (
-              <Text style={styles.departmentLabel}>
-                {selectedReport.ubicacion}
-              </Text>
-            )}
-            {rol === "tecnico" && (
-              <Text style={styles.departmentLabel}>
-                {selectedReport.ubicacion}
-              </Text>
-            )}
           </View>
 
-          {/* Comentario */}
           <View style={styles.commentSection}>
-            <Text style={styles.commentLabel}>Descripción el problema</Text>
-            <Text style={styles.commentText}>{selectedReport.comentarios}</Text>
+            <View style={styles.infoRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.commentLabel}>
+                  Descripción del problema
+                </Text>
+                <Text style={styles.commentText}>
+                  {selectedReport.comentarios}
+                </Text>
+              </View>
+              {rol === "admin" && (
+                <View style={styles.commentFieldRight}>
+                  <Text style={styles.commentLabel}>Técnico asignado</Text>
+                  <Text
+                    style={styles.commentText}
+                    numberOfLines={2} // Limita a dos líneas si es necesario
+                    ellipsizeMode="tail" // Agrega "..." si supera las líneas
+                  >
+                    {selectedReport.TecnicoAsignado || "No asignado"}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.infoRow}>
+              <View style={{ flex: 1 }}>
+                {rol === "admin" ? (
+                  <>
+                    <Text style={styles.commentLabel}>Ubicación</Text>
+                    <Text style={styles.commentText}>
+                      {selectedReport.nombreUbicacion}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    {selectedReport.ubicacion && (
+                      <>
+                        <Text style={styles.commentLabel}>Ubicación</Text>
+                        <Text style={styles.commentText}>
+                          {selectedReport.ubicacion}
+                        </Text>
+                      </>
+                    )}
+                  </>
+                )}
+              </View>
+              <View style={styles.commentFieldRight}>
+                <Text style={styles.commentLabel}>Equipo</Text>
+                <Text style={styles.commentText}>
+                  {selectedReport.numeroEquipo}
+                </Text>
+              </View>
+            </View>
           </View>
+
+          {selectedReport.ComentariosFinales && rol !== "cliente" && (
+            <View style={styles.commentSection}>
+              <Text style={styles.commentLabel}>Observaciones</Text>
+              <Text style={styles.commentText}>
+                {selectedReport.ComentariosFinales}
+              </Text>
+            </View>
+          )}
 
           {/* Fecha y hora */}
           <View style={styles.timeSection}>
@@ -277,22 +344,51 @@ export default function ReportModal({
           </View>
 
           {/* Botón de acción según estado */}
-          {selectedReport.estado === "pendiente" &&
-            (rol === "admin" || rol === "tecnico") && (
+          {selectedReport.estado === "pendiente" && rol === "tecnico" && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => handleStart(selectedReport.IdReporte)}
+            >
+              <Text style={styles.actionButtonText}>Comenzar servicio</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Technician Assignment Button */}
+          {rol === "admin" &&
+            !selectedReport.TecnicoAsignado &&
+            selectedReport.estado === "pendiente" && (
               <TouchableOpacity
                 style={styles.startButton}
-                onPress={() => handleStart(selectedReport.IdReporte)}
+                onPress={() => {
+                  fetchTecnicos(); // Fetch technicians when button is pressed
+                  setShowTechnicianModal(true);
+                }}
               >
-                <Text style={styles.actionButtonText}>Comenzar</Text>
+                <Text style={styles.actionButtonText}>Asignar técnico</Text>
               </TouchableOpacity>
             )}
+
+          {rol === "admin" &&
+            selectedReport.TecnicoAsignado &&
+            selectedReport.estado === "pendiente" && (
+              <TouchableOpacity
+                style={styles.startButton}
+                onPress={() => {
+                  fetchTecnicos(); // Fetch technicians when button is pressed
+                  setShowTechnicianModal(true);
+                }}
+              >
+                <Text style={styles.actionButtonText}>Reasignar técnico</Text>
+              </TouchableOpacity>
+            )}
+
           {selectedReport.estado === "ejecucion" &&
             (rol === "admin" || rol === "tecnico") && (
               <TouchableOpacity
-                style={styles.actionButton}
+                style={styles.completeButton}
                 onPress={() => handleComplete(selectedReport.IdReporte)}
               >
-                <Text style={styles.actionButtonText}>Completar</Text>
+                <Text style={styles.actionButtonText}>Concluir servicio</Text>
               </TouchableOpacity>
             )}
 
@@ -329,8 +425,30 @@ export default function ReportModal({
           selectedReport={selectedReport}
           closeEditModal={() => setIsEditModalVisible(false)}
           token={token}
+          userDetails={userDetails}
         />
       )}
+
+      {/* Final Comments Modal */}
+      {isFinalCommentsModalVisible && (
+        <FinalCommentsModal
+          visible={isFinalCommentsModalVisible}
+          onClose={() => setIsFinalCommentsModalVisible(false)}
+          onConfirm={handleFinalCommentConfirm}
+          token={token}
+          IdReporte={selectedReport.IdReporte}
+        />
+      )}
+
+      {/* Technician Modal */}
+      <TechnicianModal
+        visible={showTechnicianModal}
+        tecnicos={tecnicos}
+        onSelect={(tecnico) => {
+          handleAssignTechnician(tecnico);
+        }}
+        onClose={() => setShowTechnicianModal(false)}
+      />
     </Modal>
   );
 }

@@ -8,9 +8,11 @@ import {
   Alert,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from "react-native";
 import { AuthContext } from "../context/UsuarioContext";
 import { FontAwesome, Feather } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function Profile() {
   const { authState, loadUserDetails, signOut } = useContext(AuthContext);
@@ -189,16 +191,18 @@ export default function Profile() {
 
               {/* Nueva sección de botones con el nuevo diseño */}
               <View style={styles.menuContainer}>
-                <TouchableOpacity
-                  style={styles.menuButton}
-                  onPress={() => setIsModalVisible(true)}
-                >
-                  <View style={styles.menuIconContainer}>
-                    <FontAwesome name="user" size={20} color="#2d57d1" />
-                  </View>
-                  <Text style={styles.menuButtonText}>Editar Perfil</Text>
-                  <FontAwesome name="chevron-right" size={16} color="#ccc" />
-                </TouchableOpacity>
+                {rol !== "admin" && (
+                  <TouchableOpacity
+                    style={styles.menuButton}
+                    onPress={() => setIsModalVisible(true)}
+                  >
+                    <View style={styles.menuIconContainer}>
+                      <FontAwesome name="user" size={20} color="#2d57d1" />
+                    </View>
+                    <Text style={styles.menuButtonText}>Editar Perfil</Text>
+                    <FontAwesome name="chevron-right" size={16} color="#ccc" />
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   style={styles.menuButton}
@@ -238,61 +242,69 @@ export default function Profile() {
         transparent={true}
         onRequestClose={closeModal}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Editar Datos</Text>
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Editar Datos</Text>
 
-            <Text style={styles.inputLabel}>Nombre(s)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre"
-              value={formData.nombre}
-              onChangeText={(value) => handleInputChange("nombre", value)}
-            />
-            <Text style={styles.inputLabel}>Apellido Paterno</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Apellido Paterno"
-              value={formData.apellidoPa}
-              onChangeText={(value) => handleInputChange("apellidoPa", value)}
-            />
-            <Text style={styles.inputLabel}>Apellido Materno</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Apellido Materno"
-              value={formData.apellidoMa}
-              onChangeText={(value) => handleInputChange("apellidoMa", value)}
-            />
-            <Text style={styles.inputLabel}>Teléfono</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Teléfono"
-              value={formData.Telefono}
-              onChangeText={(value) => handleInputChange("Telefono", value)}
-            />
-            <Text style={styles.inputLabel}>Correo</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Correo Electrónico"
-              value={formData.CorreoElectronico}
-              onChangeText={(value) =>
-                handleInputChange("CorreoElectronico", value)
-              }
-            />
+              <Text style={styles.inputLabel}>Nombre(s)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre"
+                value={formData.nombre}
+                onChangeText={(value) => handleInputChange("nombre", value)}
+              />
+              <Text style={styles.inputLabel}>Apellido Paterno</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Apellido Paterno"
+                value={formData.apellidoPa}
+                onChangeText={(value) => handleInputChange("apellidoPa", value)}
+              />
+              <Text style={styles.inputLabel}>Apellido Materno</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Apellido Materno"
+                value={formData.apellidoMa}
+                onChangeText={(value) => handleInputChange("apellidoMa", value)}
+              />
+              <Text style={styles.inputLabel}>Teléfono</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Teléfono"
+                value={formData.Telefono}
+                onChangeText={(value) => handleInputChange("Telefono", value)}
+              />
+              <Text style={styles.inputLabel}>Correo</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Correo Electrónico"
+                value={formData.CorreoElectronico}
+                onChangeText={(value) =>
+                  handleInputChange("CorreoElectronico", value)
+                }
+              />
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleUpdate}
-              >
-                <Text style={styles.actionButtonText}>Guardar cambios</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                <Text style={styles.actionButtonText}>Cancelar</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={handleUpdate}
+                >
+                  <Text style={styles.actionButtonText}>Guardar cambios</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={closeModal}
+                >
+                  <Text style={styles.actionButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAwareScrollView>
       </Modal>
 
       {/* Modal de cambio de contraseña */}
@@ -302,58 +314,63 @@ export default function Profile() {
         transparent={true}
         onRequestClose={closePasswordModal}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Actualizar Contraseña</Text>
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Actualizar Contraseña</Text>
 
-            <Text style={styles.inputLabel}>Nueva contraseña</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nueva Contraseña"
-              secureTextEntry
-              value={passwordData.newPassword}
-              onChangeText={(value) =>
-                handlePasswordChange("newPassword", value)
-              }
-            />
-            <Text style={styles.inputLabel}>Confirmar nueva contraseña</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Confirmar Contraseña"
-              secureTextEntry
-              value={passwordData.confirmPassword}
-              onChangeText={(value) =>
-                handlePasswordChange("confirmPassword", value)
-              }
-            />
-
-            {passwordData.newPassword &&
-              passwordData.confirmPassword &&
-              passwordData.newPassword !== passwordData.confirmPassword && (
-                <Text style={styles.errorText}>
-                  Las contraseñas no coinciden.
-                </Text>
-              )}
-
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleUpdatePassword}
-                disabled={
-                  passwordData.newPassword !== passwordData.confirmPassword
+              <Text style={styles.inputLabel}>Nueva contraseña</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Nueva Contraseña"
+                secureTextEntry
+                value={passwordData.newPassword}
+                onChangeText={(value) =>
+                  handlePasswordChange("newPassword", value)
                 }
-              >
-                <Text style={styles.actionButtonText}>Guardar cambios</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={closePasswordModal}
-              >
-                <Text style={styles.actionButtonText}>Cancelar</Text>
-              </TouchableOpacity>
+              />
+              <Text style={styles.inputLabel}>Confirmar nueva contraseña</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Confirmar Contraseña"
+                secureTextEntry
+                value={passwordData.confirmPassword}
+                onChangeText={(value) =>
+                  handlePasswordChange("confirmPassword", value)
+                }
+              />
+
+              {passwordData.newPassword &&
+                passwordData.confirmPassword &&
+                passwordData.newPassword !== passwordData.confirmPassword && (
+                  <Text style={styles.errorText}>
+                    Las contraseñas no coinciden.
+                  </Text>
+                )}
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={handleUpdatePassword}
+                  disabled={
+                    passwordData.newPassword !== passwordData.confirmPassword
+                  }
+                >
+                  <Text style={styles.actionButtonText}>Guardar cambios</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={closePasswordModal}
+                >
+                  <Text style={styles.actionButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAwareScrollView>
       </Modal>
     </View>
   );

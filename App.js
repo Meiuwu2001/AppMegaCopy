@@ -38,7 +38,7 @@ function TabNavigator() {
     >
       <Tab.Screen name="Inicio" component={Dashboard} />
       <Tab.Screen name="Perfil" component={Profile} />
-      {rol === "cliente" && (
+      {rol !== "tecnico" && (
         <Tab.Screen name="Reportar" component={ReporteForm} />
       )}
     </Tab.Navigator>

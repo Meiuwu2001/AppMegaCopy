@@ -7,15 +7,14 @@ import {
   Image,
   StyleSheet,
   SafeAreaView,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
 import { AuthContext } from "../context/UsuarioContext";
-import { CommonActions } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const Login = ({ navigation }) => {
   const [user, setUser] = useState("");
@@ -57,9 +56,9 @@ const Login = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
+        contentContainerStyle={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingView}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
@@ -118,7 +117,7 @@ const Login = ({ navigation }) => {
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

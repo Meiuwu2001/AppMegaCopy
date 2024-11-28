@@ -10,26 +10,30 @@ export const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   contentContainer2: {
-    paddingBottom: 10,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    flex: 1,
+    justifyContent: "center", // Centrado vertical
+    alignItems: "center", // Centrado horizontal
   },
   header: {
     padding: 20,
   },
   header2: {
-    padding: 200,
+    padding: 300,
     position: "absolute",
     backgroundColor: "#00205B",
-    borderRadius: 400,
+    borderRadius: 220,
     margin: "auto",
-    top: -80,
+    top: -170,
     zIndex: 1,
   },
   logoContainer: {
     alignItems: "center",
-    marginTop: -30,
+  },
+  logoContainer2: {
+    flexDirection: "row",
+    justifyContent: "center", // Centrado horizontal
+    alignItems: "center", // Asegura el logo centrado
+    width: "100%",
   },
   logo: {
     width: 90,
@@ -38,7 +42,9 @@ export const styles = StyleSheet.create({
   logo2: {
     width: 170,
     height: 170,
-    marginTop: -100,
+    zIndex: 10,
+    margin: "auto",
+    marginBottom: -20,
   },
   infoContainer: {
     flexDirection: "row",
@@ -69,15 +75,15 @@ export const styles = StyleSheet.create({
     marginBottom: 0,
   },
   filterContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 10,
+    display: "flex",
   },
   filterButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
     backgroundColor: "transparent",
-    marginRight: 10,
     height: 36,
   },
   filterButtonActive: {
@@ -95,16 +101,18 @@ export const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingTop: 20,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     marginTop: 0,
     zIndex: 1,
   },
   cardContainer2: {
-    flex: 1,
+    display: "flex",
+    flexDirection: "column",
     backgroundColor: "#f5f5f5",
     paddingHorizontal: 20,
     marginTop: 0,
+    gap: 0,
   },
   card: {
     backgroundColor: "#fff",
@@ -157,7 +165,7 @@ export const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 25,
     width: "90%",
-    maxHeight: "80%",
+    maxHeight: "95%",
   },
   modalHeader: {
     flexDirection: "row",
@@ -198,21 +206,33 @@ export const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 5,
+    alignItems: "flex-start", // Asegura la alineación superior
+    marginBottom: 10,
+  },
+  commentField: {
+    flex: 1, // Permite que el texto se ajuste automáticamente
+    marginLeft: 10,
+  },
+  commentFieldRight: {
+    flex: 1,
+    alignItems: "flex-end", // Todo el contenido se alinea a la derecha
   },
   serviceDepartment: {
     fontSize: 18,
     fontWeight: "bold",
   },
+  reportTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#444b66",
+  },
   serviceEquipment: {
     fontSize: 16,
     color: "#666",
-    marginRight: 5,
-    display: "flex",
-    flexDirection: "column",
-    gap: 5,
+    textAlign: "right", // Alinear el texto a la derecha
+    flex: 1, // Ocupar espacio disponible si hay más elementos en la fila
   },
+
   departmentLabel: {
     fontSize: 14,
     color: "#666",
@@ -222,7 +242,7 @@ export const styles = StyleSheet.create({
   },
   commentLabel: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "bold",
     marginBottom: 5,
   },
   equipmentLabel: {
@@ -259,7 +279,14 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   startButton: {
-    backgroundColor: "#0ec141",
+    backgroundColor: "#f1a71b",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  completeButton: {
+    backgroundColor: "#35b440",
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -291,6 +318,7 @@ export const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "500",
+    margin: "auto",
   },
   technicianSelect: {
     marginTop: 20,
@@ -319,13 +347,21 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  input2: {
+    backgroundColor: "#f5f5f5",
+    borderRadius: 10,
+    padding: 15,
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 15,
+  },
   textArea: {
     backgroundColor: "#f5f5f5",
     borderRadius: 10,
     padding: 15,
     fontSize: 16,
     color: "#333",
-    height: 150, // Altura ajustada para un textArea
+    height: 100, // Altura ajustada para un textArea
     textAlignVertical: "top", // Alineación del texto al inicio
   },
   cardLarge: {
@@ -338,8 +374,9 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    zIndex: 4,
-    marginTop: 150,
+    alignSelf: "center", // Asegura que la tarjeta esté centrada
+    zIndex: 2,
+    minWidth: 310,
   },
   titleLarge: {
     color: "#333",
@@ -361,6 +398,7 @@ export const styles = StyleSheet.create({
     display: "flex",
     margin: "auto",
     marginBottom: 5,
+    justifyContent: "center",
   },
   inputLabel: {
     fontSize: 14,
@@ -417,7 +455,6 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     marginRight: 5,
     marginLeft: 5,
-    marginTop: 5,
   },
   modalItemText: {
     fontSize: 16,
@@ -439,5 +476,25 @@ export const styles = StyleSheet.create({
   icon2: {
     backgroundColor: "#00205B",
     borderRadius: 25,
+  },
+  statusIcon: {
+    marginRight: 3,
+    backgroundColor: "#ffe9f3",
+    borderRadius: 10,
+  },
+  statusIcon2: {
+    marginRight: 3,
+    backgroundColor: "#fff7e2",
+    borderRadius: 10,
+  },
+  statusIcon3: {
+    marginRight: 3,
+    backgroundColor: "#e1fff8",
+    borderRadius: 10,
+  },
+  refreshIndicator: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
   },
 });

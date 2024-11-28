@@ -1,6 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import {
-  StyleSheet,
   View,
   Text,
   TouchableOpacity,
@@ -9,13 +8,15 @@ import {
   SafeAreaView,
   Animated,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { styles } from "../components/themes/themes";
 import { FILTERS } from "../data/data";
 import ReportModal from "../components/reportModal";
 import { AuthContext } from "../context/UsuarioContext";
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
+import { AlertCircle, Clock, CheckCircle } from "lucide-react-native";
 
 export default function Dashboard() {
   const { authState, loadUserDetails } = useContext(AuthContext);
@@ -29,6 +30,7 @@ export default function Dashboard() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [shouldAnimate, setShouldAnimate] = useState(true); // Controla cuándo debe animar
+  const [refreshing, setRefreshing] = useState(false);
 
   console.log(token);
 
@@ -41,6 +43,19 @@ export default function Dashboard() {
     setSelectedReport(null);
     refreshDashboardData(); // Refresca los datos sin reiniciar la animación
   };
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refreshDashboardData();
+      // Opcional: reactivar animación si lo deseas
+      setShouldAnimate(true);
+    } catch (error) {
+      console.error("Error al refrescar:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
     // Ejecutar animación solo si `shouldAnimate` es true
@@ -57,8 +72,14 @@ export default function Dashboard() {
   useEffect(() => {
     if (rol && iduser) {
       const fetchDetails = async () => {
-        await loadUserDetails(rol, iduser); // Carga detalles del usuario
-        setLoading(false);
+        try {
+          await loadUserDetails(rol, iduser);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error al cargar detalles de usuario:", error);
+          setLoading(false);
+          // Opcional: manejar el error de carga de usuario
+        }
       };
       fetchDetails();
     }
@@ -94,23 +115,53 @@ export default function Dashboard() {
   };
 
   const refreshDashboardData = async () => {
-    setError(null);
+    try {
+      // Primero, intenta recargar los detalles del usuario si no están disponibles
+      if (!userDetails) {
+        console.log("Recargando detalles de usuario");
+        await loadUserDetails(rol, iduser);
+      }
 
-    let clienteId = null;
-    let tecnicoId = null;
+      // Espera un momento para asegurar que userDetails se ha actualizado
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-    if (rol === "cliente" && userDetails) {
-      clienteId = userDetails.idClientes;
-    } else if (rol === "tecnico" && userDetails) {
-      tecnicoId = userDetails.idTecnicos;
+      // Verificación de userDetails después de recargar
+      if (!userDetails) {
+        console.error("No se pudieron cargar los detalles de usuario");
+        return;
+      }
+
+      let clienteId = null;
+      let tecnicoId = null;
+
+      // Ajusta la extracción de IDs según el rol
+      if (rol === "cliente") {
+        clienteId = userDetails.idClientes;
+      } else if (rol === "tecnico") {
+        tecnicoId = userDetails.idTecnicos;
+      }
+
+      // Si es admin, no necesita ID específico
+      const reportData = await LoadReportsDetails(clienteId, tecnicoId);
+
+      // Actualiza los reportes
+      setReports(Array.isArray(reportData) ? reportData : []);
+    } catch (error) {
+      console.error("Error al actualizar el dashboard:", error);
+      // Opcional: mostrar un mensaje de error al usuario
+      // setError("No se pudieron actualizar los reportes");
     }
-
-    const reportData = await LoadReportsDetails(clienteId, tecnicoId);
-    setReports(Array.isArray(reportData) ? reportData : []);
   };
-
   const LoadReportsDetails = async (clienteId, tecnicoId) => {
     try {
+      if (
+        (rol === "cliente" && !clienteId) ||
+        (rol === "tecnico" && !tecnicoId)
+      ) {
+        console.error(`No se encontró el ID para el rol: ${rol}`);
+        return []; // Retorna un arreglo vacío en lugar de lanzar un error
+      }
+
       const endpointReportMap = {
         admin: `https://backend-integradora.vercel.app/api/reportesCreados`,
         cliente: `https://backend-integradora.vercel.app/api/reportesclientes/${clienteId}`,
@@ -131,7 +182,7 @@ export default function Dashboard() {
       return result;
     } catch (err) {
       console.error(
-        "Reports: Error al obtener los detalles de los reportes:",
+        `Reports: Error al obtener los detalles de los reportes para rol ${rol}:`,
         err.message
       );
       setError("Error al cargar los reportes");
@@ -141,13 +192,17 @@ export default function Dashboard() {
   const getStatusColor = (status) => {
     switch (status) {
       case "pendiente":
-        return "#ff006e";
+        return (
+          <AlertCircle color="#ff006e" size={15} style={styles.statusIcon} />
+        );
       case "ejecucion":
-        return "#ffbe0b";
+        return <Clock color="#ffbe0b" size={15} style={styles.statusIcon2} />;
       case "concluido":
-        return "#06d6a0";
+        return (
+          <CheckCircle color="#06d6a0" size={15} style={styles.statusIcon3} />
+        );
       default:
-        return "#666";
+        return <AlertCircle color="gray" size={15} style={styles.statusIcon} />;
     }
   };
 
@@ -203,14 +258,6 @@ export default function Dashboard() {
         <Animated.View
           style={[styles.header, { transform: [{ scale: headerScale }] }]}
         >
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
           <View style={styles.infoContainer}>
             <View style={styles.headerTextContainer}>
               <Text style={styles.greeting}>
@@ -232,12 +279,11 @@ export default function Dashboard() {
                 </Text>
               )}
             </View>
-            <View style={styles.profileContainer}>
-              <FontAwesome
-                style={styles.icon2}
-                name="user-circle"
-                size={40}
-                color="#fff"
+            <View style={styles.logoContainer}>
+              <Image
+                source={require("../../assets/logo.png")}
+                style={styles.logo}
+                resizeMode="contain"
               />
             </View>
           </View>
@@ -281,6 +327,15 @@ export default function Dashboard() {
           { useNativeDriver: false }
         )}
         scrollEventThrottle={16}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#666"]} // Color del indicador de carga (puedes personalizarlo)
+            tintColor="#666" // Color del círculo de carga en iOS
+            title="Actualizando reportes..." // Texto opcional de carga
+          />
+        }
       >
         {filteredReports.map((report, index) => (
           <TouchableOpacity
@@ -308,15 +363,10 @@ export default function Dashboard() {
             >
               <View style={styles.cardHeader}>
                 <Text style={styles.cardTitle}>
-                  {truncateText(report.tituloReporte || "No disponible", 28)}
+                  {truncateText(report.tituloReporte || "No disponible", 27)}
                 </Text>
                 <View style={styles.statusContainer}>
-                  <View
-                    style={[
-                      styles.statusDot,
-                      { backgroundColor: getStatusColor(report.estado) },
-                    ]}
-                  />
+                  {getStatusColor(report.estado)}
                   <Text style={styles.statusText}>
                     {getStatusText(report.estado)}
                   </Text>
@@ -355,6 +405,7 @@ export default function Dashboard() {
           closeModal={closeModal}
           token={token}
           rol={rol}
+          userDetails={userDetails}
         />
       )}
     </SafeAreaView>

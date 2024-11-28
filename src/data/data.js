@@ -71,5 +71,5 @@ export const FILTERS = [
   { id: "todos", label: "Todos" },
   { id: "pendiente", label: "Pendientes" },
   { id: "ejecucion", label: "En curso" },
-  { id: "concluido", label: "Completadas" },
+  { id: "concluido", label: "Concluidos" },
 ];
