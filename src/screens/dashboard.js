@@ -15,7 +15,7 @@ import { styles } from "../components/themes/themes";
 import { FILTERS } from "../data/data";
 import ReportModal from "../components/reportModal";
 import { AuthContext } from "../context/UsuarioContext";
-import { AlertCircle, Clock, CheckCircle } from "lucide-react-native";
+import { AlertCircle, Clock, CheckCircle, FileText } from "lucide-react-native";
 
 export default function Dashboard() {
   const { authState, loadUserDetails } = useContext(AuthContext);
@@ -343,65 +343,72 @@ export default function Dashboard() {
           />
         }
       >
-        {filteredReports.map((report, index) => (
-          <TouchableOpacity
-            key={report.IdReporte}
-            onPress={() => {
-              setSelectedReport(report);
-              setIsReportModalOpen(true);
-            }}
-          >
-            <Animated.View
-              style={[
-                styles.card,
-                {
-                  opacity: fadeAnim,
-                  transform: [
-                    {
-                      translateY: fadeAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [50 * (index + 1), 0],
-                      }),
-                    },
-                  ],
-                },
-              ]}
+        {filteredReports.length === 0 ? (
+          <View style={styles.noReportsContainer}>
+            <FileText size={50} color="#666" />
+            <Text style={styles.noReportsText}>No hay reportes</Text>
+          </View>
+        ) : (
+          filteredReports.map((report, index) => (
+            <TouchableOpacity
+              key={report.IdReporte}
+              onPress={() => {
+                setSelectedReport(report);
+                setIsReportModalOpen(true);
+              }}
             >
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>
-                  {truncateText(report.tituloReporte || "No disponible", 27)}
-                </Text>
-                <View style={styles.statusContainer}>
-                  {getStatusColor(report.estado)}
-                  <Text style={styles.statusText}>
-                    {getStatusText(report.estado)}
+              <Animated.View
+                style={[
+                  styles.card,
+                  {
+                    opacity: fadeAnim,
+                    transform: [
+                      {
+                        translateY: fadeAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [50 * (index + 1), 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>
+                    {truncateText(report.tituloReporte || "No disponible", 27)}
                   </Text>
+                  <View style={styles.statusContainer}>
+                    {getStatusColor(report.estado)}
+                    <Text style={styles.statusText}>
+                      {getStatusText(report.estado)}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-              {rol === "cliente" && (
-                <Text style={styles.cardDescription}>
-                  {truncateText(report.comentarios || "Sin descripción", 100)}
-                </Text>
-              )}
-              {rol === "tecnico" && (
-                <Text style={styles.cardDescription}>
-                  {truncateText(
-                    report.ubicacion || "Ubicación no disponible",
-                    100
-                  )}
-                </Text>
-              )}
-              {rol === "admin" && (
-                <Text style={styles.cardDescription}>
-                  {truncateText(
-                    report.nombreUbicacion || "Ubicación no disponible",
-                    100
-                  )}
-                </Text>
-              )}
-            </Animated.View>
-          </TouchableOpacity>
-        ))}
+                {rol === "cliente" && (
+                  <Text style={styles.cardDescription}>
+                    {truncateText(report.comentarios || "Sin descripción", 100)}
+                  </Text>
+                )}
+                {rol === "tecnico" && (
+                  <Text style={styles.cardDescription}>
+                    {truncateText(
+                      report.ubicacion || "Ubicación no disponible",
+                      100
+                    )}
+                  </Text>
+                )}
+                {rol === "admin" && (
+                  <Text style={styles.cardDescription}>
+                    {truncateText(
+                      report.nombreUbicacion || "Ubicación no disponible",
+                      100
+                    )}
+                  </Text>
+                )}
+              </Animated.View>
+            </TouchableOpacity>
+          ))
+        )}
       </Animated.ScrollView>
 
       {/* Modals */}

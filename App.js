@@ -45,7 +45,9 @@ function TabNavigator() {
         <Tab.Screen name="Reportar" component={ReporteForm} />
       )}
       <Tab.Screen name="Perfil" component={Profile} />
-      <Tab.Screen name="Contacto" component={ContactInfo} />
+      {rol === "cliente" && (
+        <Tab.Screen name="Contacto" component={ContactInfo} />
+      )}
     </Tab.Navigator>
   );
 }

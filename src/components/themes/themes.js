@@ -533,4 +533,17 @@ export const styles = StyleSheet.create({
     width: 100,
     alignItems: "center",
   },
+  noReportsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 100,
+    padding: 20,
+  },
+  noReportsText: {
+    marginTop: 15,
+    fontSize: 18,
+    color: "#666",
+    textAlign: "center",
+  },
 });
