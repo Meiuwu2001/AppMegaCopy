@@ -160,7 +160,7 @@ export const EditReportForm = ({
               >
                 <Text style={styles.selectButtonText}>
                   {selectedEquipo
-                    ? selectedEquipo.NumeroEquipo
+                    ? selectedEquipo.NumeroEquipo || selectedEquipo.numeroEquipo
                     : "Seleccionar equipo"}
                 </Text>
               </TouchableOpacity>

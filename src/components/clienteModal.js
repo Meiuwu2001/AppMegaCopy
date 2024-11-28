@@ -10,7 +10,7 @@ import {
 import { styles } from "./themes/themes";
 import { Feather } from "@expo/vector-icons";
 
-const EquipmentModal = ({ visible, clientes, onSelect, onClose }) => {
+const ClienteModal = ({ visible, clientes, onSelect, onClose }) => {
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
 
   // Filtrar clientes solo si hay un término de búsqueda
@@ -70,4 +70,4 @@ const EquipmentModal = ({ visible, clientes, onSelect, onClose }) => {
   );
 };
 
-export default EquipmentModal;
+export default ClienteModal;
