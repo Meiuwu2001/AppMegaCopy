@@ -35,7 +35,7 @@ export default function ContactInfo() {
                 <FontAwesome
                   name="map-marker"
                   size={20}
-                  color="#666"
+                  color="#3658bb"
                   style={styles.infoIcon}
                 />
                 <View style={styles.infoContent}>
@@ -54,7 +54,7 @@ export default function ContactInfo() {
               <FontAwesome
                 name="clock-o"
                 size={20}
-                color="#666"
+                color="#3658bb"
                 style={styles.infoIcon}
               />
               <View style={styles.infoContent}>
@@ -75,7 +75,7 @@ export default function ContactInfo() {
                 <FontAwesome
                   name="phone"
                   size={20}
-                  color="#666"
+                  color="#3658bb"
                   style={styles.infoIcon}
                 />
                 <View style={styles.infoContent}>
@@ -96,7 +96,7 @@ export default function ContactInfo() {
                 <FontAwesome
                   name="envelope"
                   size={20}
-                  color="#666"
+                  color="#3658bb"
                   style={styles.infoIcon}
                 />
                 <View style={styles.infoContent}>
