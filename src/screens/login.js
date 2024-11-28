@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   forgotPassword: {
     color: "#2044ac",
     textAlign: "right",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   loginButton: {
     backgroundColor: "#4751FF",
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   recoveryContainer: {
-    marginBottom: 10,
+    marginBottom: 20,
     backgroundColor: "#fcfcfc",
     padding: 20,
     borderRadius: 10,
