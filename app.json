@@ -1,31 +1,27 @@
 {
   "expo": {
-    "name": "AppMegaCopy",
-    "slug": "AppMegaCopy",
+    "name": "appmegacopy",
+    "slug": "appmegacopy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
+      "package": "com.meiuwu.appmegacopy",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.meiuwu.AppMegaCopy"
+      }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
+    "owner": "meiuwu",
     "extra": {
       "eas": {
-        "projectId": "d8958a2a-cbf2-424b-beac-78f9a6fed39d"
+        "projectId": "da89f30d-2aab-4c78-aa70-eac4b3169f2c"
       }
     }
   }
