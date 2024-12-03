@@ -69,19 +69,27 @@ export default function Dashboard() {
   }, [shouldAnimate]);
 
   useEffect(() => {
-    if (rol && iduser) {
-      const fetchDetails = async () => {
-        try {
+    const fetchDetails = async () => {
+      try {
+        console.log("Iniciando carga de detalles en Dashboard");
+        console.log("Rol:", rol);
+        console.log("IDUser:", iduser);
+
+        if (rol && iduser) {
           await loadUserDetails(rol, iduser);
-          setLoading(false);
-        } catch (error) {
-          console.error("Error al cargar detalles de usuario:", error);
-          setLoading(false);
-          // Opcional: manejar el error de carga de usuario
+        } else {
+          console.warn("Rol o IDUser no disponibles", { rol, iduser });
         }
-      };
-      fetchDetails();
-    }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error al cargar detalles de usuario:", error);
+        setLoading(false);
+        setError("No se pudieron cargar los detalles del usuario");
+      }
+    };
+
+    fetchDetails();
   }, [rol, iduser]);
 
   useEffect(() => {
@@ -103,7 +111,11 @@ export default function Dashboard() {
       tecnicoId = userDetails.idTecnicos;
     }
 
-    const reportData = await LoadReportsDetails(clienteId, tecnicoId);
+    const reportData = await LoadReportsDetails(
+      rol !== "admin" ? clienteId : null,
+      rol !== "admin" ? tecnicoId : null
+    );
+
     setReports(Array.isArray(reportData) ? reportData : []);
     setLoading(false);
 
@@ -115,49 +127,68 @@ export default function Dashboard() {
 
   const refreshDashboardData = async () => {
     try {
-      // Primero, intenta recargar los detalles del usuario si no están disponibles
-      if (!userDetails) {
-        console.log("Recargando detalles de usuario");
-        await loadUserDetails(rol, iduser);
-      }
+      console.log("Iniciando refreshDashboardData");
+      console.log("Rol actual:", rol);
+      console.log("Detalles de usuario actuales:", userDetails);
 
-      // Espera un momento para asegurar que userDetails se ha actualizado
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Verificación de userDetails después de recargar
-      if (!userDetails) {
-        console.error("No se pudieron cargar los detalles de usuario");
-        return;
+      if (rol !== "admin") {
+        if (!userDetails) {
+          console.log("No hay detalles de usuario. Intentando recargar...");
+          try {
+            await loadUserDetails(rol, iduser);
+          } catch (loadError) {
+            console.error("Error al recargar detalles de usuario:", loadError);
+            setError("No se pudieron cargar los detalles del usuario");
+            return;
+          }
+        }
       }
 
       let clienteId = null;
       let tecnicoId = null;
 
-      // Ajusta la extracción de IDs según el rol
       if (rol === "cliente") {
-        clienteId = userDetails.idClientes;
+        clienteId = userDetails?.idClientes || userDetails?.id;
+        console.log("ID de cliente:", clienteId);
       } else if (rol === "tecnico") {
-        tecnicoId = userDetails.idTecnicos;
+        tecnicoId = userDetails?.idTecnicos || userDetails?.id;
+        console.log("ID de técnico:", tecnicoId);
       }
 
-      // Si es admin, no necesita ID específico
       const reportData = await LoadReportsDetails(clienteId, tecnicoId);
-
-      // Actualiza los reportes
       setReports(Array.isArray(reportData) ? reportData : []);
     } catch (error) {
-      console.error("Error al actualizar el dashboard:", error);
-      // Opcional: mostrar un mensaje de error al usuario
-      // setError("No se pudieron actualizar los reportes");
+      console.error("Error completo en refreshDashboardData:", error);
+      setError("Error al actualizar el dashboard");
     }
   };
+
   const LoadReportsDetails = async (clienteId, tecnicoId) => {
     try {
+      console.log("Detalles de la llamada a LoadReportsDetails:");
+      console.log("Rol:", rol);
+      console.log("ClienteId recibido:", clienteId);
+      console.log("TecnicoId recibido:", tecnicoId);
+      console.log("UserDetails completo:", userDetails);
+
+      // Verifica si userDetails tiene el ID correcto
+      if (rol === "cliente") {
+        clienteId =
+          userDetails?.idClientes || userDetails?.id || userDetails?.iduser;
+      } else if (rol === "tecnico") {
+        tecnicoId =
+          userDetails?.idTecnicos || userDetails?.id || userDetails?.iduser;
+      }
+
+      console.log("ClienteId después de verificación:", clienteId);
+      console.log("TecnicoId después de verificación:", tecnicoId);
+
       if (
         (rol === "cliente" && !clienteId) ||
         (rol === "tecnico" && !tecnicoId)
       ) {
         console.error(`No se encontró el ID para el rol: ${rol}`);
+        console.error("Detalles completos de userDetails:", userDetails);
         return []; // Retorna un arreglo vacío en lugar de lanzar un error
       }
 
@@ -168,6 +199,8 @@ export default function Dashboard() {
       };
 
       const endpointReport = endpointReportMap[rol];
+      console.log("Endpoint a llamar:", endpointReport);
+
       const response = await fetch(endpointReport, {
         method: "GET",
         headers: {
@@ -176,7 +209,14 @@ export default function Dashboard() {
         },
       });
 
-      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Error en la respuesta: ${response.status} - ${errorText}`
+        );
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
       const result = await response.json();
       return result;
     } catch (err) {
@@ -185,9 +225,9 @@ export default function Dashboard() {
         err.message
       );
       setError("Error al cargar los reportes");
+      return []; // Retorna un arreglo vacío en caso de error
     }
   };
-
   const getStatusColor = (status) => {
     switch (status) {
       case "pendiente":

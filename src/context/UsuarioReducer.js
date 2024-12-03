@@ -8,23 +8,21 @@ export const authInitialState = {
 export const authReducer = (state, action) => {
   switch (action.type) {
     case "signIn":
-      const { user, token, rol, iduser } = action.payload;
       return {
         ...state,
-        user,
-        token,
-        rol, // Añadir rol al estado
-        iduser, // Añadir iduser al estado
+        user: action.payload.user,
+        token: action.payload.token,
+        rol: action.payload.rol,
+        iduser: action.payload.iduser,
+      };
+    case "setUsuario":
+      return {
+        ...state,
+        userDetails: action.payload.userDetails,
       };
     case "signOut":
       return {
         ...authInitialState,
-      };
-    case "setUsuario":
-      const { userDetails } = action.payload;
-      return {
-        ...state,
-        userDetails, // Actualizar iduser
       };
     default:
       return state;

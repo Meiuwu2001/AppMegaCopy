@@ -47,13 +47,11 @@ export const AuthProvider = ({ children }) => {
 
     if (storedToken && storedUser) {
       // Asegúrate de que ambos estén presentes
-      
 
       try {
         const tokenValidationResult = await validateToken(storedToken);
 
         if (tokenValidationResult) {
-         
           const { usuario } = tokenValidationResult;
 
           // Almacenar los datos del usuario en AsyncStorage para futuras referencias
@@ -75,7 +73,6 @@ export const AuthProvider = ({ children }) => {
           // Aquí puedes cargar detalles adicionales si es necesario
           loadUserDetails(usuario.rol, usuario.id);
         } else {
-         
           await AsyncStorage.removeItem("authToken");
           await AsyncStorage.removeItem("authUser");
           await AsyncStorage.removeItem("iduser");
@@ -104,17 +101,16 @@ export const AuthProvider = ({ children }) => {
   // El signIn también debe ser modificado para almacenar correctamente todos los valores
   const signIn = async (user, token) => {
     try {
-      // Validamos el token primero
       const tokenValidationResult = await validateToken(token);
       if (tokenValidationResult) {
         const { usuario } = tokenValidationResult;
-  
-        // Almacenar los valores solo si el token es válido
+
+        // Almacenar los valores
         await AsyncStorage.setItem("authToken", token);
         await AsyncStorage.setItem("authUser", JSON.stringify(usuario));
         await AsyncStorage.setItem("rol", usuario.rol);
         await AsyncStorage.setItem("iduser", usuario.id.toString());
-  
+
         // Despachamos la acción para actualizar el estado
         dispatch({
           type: "signIn",
@@ -125,20 +121,26 @@ export const AuthProvider = ({ children }) => {
             iduser: usuario.id.toString(),
           },
         });
-  
-        // Cargar detalles adicionales del usuario si es necesario
-        loadUserDetails(usuario.rol, usuario.id);
-      } else {
+
+        // Cargar detalles adicionales del usuario
+        loadUserDetails(usuario.rol, usuario.id); // Pasamos rol e id directamente
       }
     } catch (error) {
       console.error("Error al validar el token en signIn:", error);
     }
   };
-  
 
   // Cargar detalles del usuario según su rol
-  const loadUserDetails = async () => {
-    const { token, rol, iduser } = authState;
+  const loadUserDetails = async (roleParam, iduserParam) => {
+    const rol = roleParam || authState.rol;
+    const iduser = iduserParam || authState.iduser;
+    const token = authState.token;
+
+    console.log("Cargando detalles de usuario:");
+    console.log("Rol:", rol);
+    console.log("IDUser:", iduser);
+    console.log("Token:", token);
+
     if (token && rol && iduser) {
       try {
         const endpointMap = {
@@ -148,6 +150,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         const endpoint = endpointMap[rol];
+        console.log("Endpoint para cargar detalles:", endpoint);
 
         const response = await fetch(endpoint, {
           method: "GET",
@@ -157,27 +160,45 @@ export const AuthProvider = ({ children }) => {
           },
         });
 
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(
+            `Error en la respuesta: ${response.status} - ${errorText}`
+          );
+          throw new Error(`Error: ${response.status} - ${errorText}`);
+        }
+
         const result = await response.json();
-        
-          if (result) {
-        dispatch({
-          type: "setUsuario", 
-          payload: { userDetails: result } // Guarda todo el JSON recibido
-        });
-      }
-        
+        console.log("Resultado de los detalles de usuario:", result);
+
+        if (result) {
+          // Añadir el ID al resultado para asegurarnos de tenerlo
+          result.iduser = iduser;
+
+          dispatch({
+            type: "setUsuario",
+            payload: { userDetails: result },
+          });
+
+          return result;
+        }
       } catch (err) {
         console.error(
-          "Error al obtener los detalles del usuario:",
+          `Error al obtener los detalles del usuario para rol ${rol}:`,
           err.message
         );
+        throw err;
       }
     } else {
+      console.warn("Faltan credenciales para cargar detalles de usuario", {
+        token: !!token,
+        rol: !!rol,
+        iduser: !!iduser,
+      });
     }
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     loadToken();
   }, []);
 

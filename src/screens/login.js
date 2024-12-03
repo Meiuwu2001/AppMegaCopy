@@ -42,19 +42,11 @@ const Login = ({ navigation }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // Almacenar el token en AsyncStorage
-        await AsyncStorage.setItem("authToken", data.token);
-        context.signIn(user, data.token);
-        // Limpiar campos de usuario y contraseña
-        setUser("");
-        setPassword("");
+        // Usa el método signIn del contexto de autenticación
+        await context.signIn(user, data.token);
 
-        // Redirigir al usuario a la pantalla principal
-
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "MainApp" }],
-        });
+        // En lugar de usar navigation.reset, simplemente deja que la navegación se maneje por el contexto
+        // El cambio de pantalla se producirá automáticamente cuando el token se establezca
       } else {
         setErrorMessage(
           "Usuario o contraseña incorrectos.\nInténtalo de nuevo."

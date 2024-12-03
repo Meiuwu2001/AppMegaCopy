@@ -53,18 +53,27 @@ function TabNavigator() {
 }
 
 function AppContent() {
-  const { authState, loading } = useContext(AuthContext); // Desestructurar loading
+  const { authState } = useContext(AuthContext);
 
-  if (loading) {
-    return <LoadingScreen />; // Mostrar pantalla de carga mientras validas el token
-  }
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!authState.token ? (
-          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ gestureEnabled: false }}
+          />
         ) : (
-          <Stack.Screen name="MainApp" component={TabNavigator} />
+          <Stack.Screen
+            name="MainApp"
+            component={TabNavigator}
+            options={{
+              gestureEnabled: false,
+              // Asegúrate de que la navegación no se pueda interrumpir
+              animationEnabled: false,
+            }}
+          />
         )}
       </Stack.Navigator>
     </NavigationContainer>
